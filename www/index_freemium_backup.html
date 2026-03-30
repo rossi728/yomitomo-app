@@ -1,0 +1,2700 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>よみとも - ふしぎな としょかん</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      /* 不思議な図書館カラー */
+      --bg-deep: #0f0f1a;
+      --bg-library: #1a1525;
+      --bg-shelf: #2d2438;
+      --lamp-glow: #f4d03f;
+      --lamp-soft: rgba(244, 208, 63, 0.15);
+      --star-white: #ffffff;
+      --text-primary: #f5f0e8;
+      --text-secondary: #c9c0b5;
+      --accent-purple: #9d7cd8;
+      --accent-gold: #e8b923;
+      --button-primary: #7c5cb8;
+      --button-hover: #9370db;
+      --wood-dark: #3d2e2e;
+      --wood-light: #5c4a3d;
+      /* ピリカ用カラー */
+      --forest-green: #2d5a3d;
+      --forest-light: #4a7c59;
+    }
+
+    body {
+      font-family: 'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', sans-serif;
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .app {
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ========================================
+       共通パーツ
+    ======================================== */
+    .screen {
+      min-height: 100vh;
+      display: none;
+      flex-direction: column;
+      position: relative;
+    }
+    .screen.active {
+      display: flex;
+    }
+
+    /* 星のキラキラ */
+    .stars {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .star {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      background: var(--star-white);
+      border-radius: 50%;
+      animation: twinkle 3s infinite ease-in-out;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.3; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    /* ほこりのキラキラ */
+    .dust {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: var(--lamp-glow);
+      border-radius: 50%;
+      opacity: 0.6;
+      animation: float 8s infinite ease-in-out;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0) translateX(0); opacity: 0.3; }
+      25% { transform: translateY(-20px) translateX(10px); opacity: 0.8; }
+      50% { transform: translateY(-10px) translateX(-5px); opacity: 0.5; }
+      75% { transform: translateY(-30px) translateX(15px); opacity: 0.7; }
+    }
+
+    /* ========================================
+       ホーム画面
+    ======================================== */
+    .home-screen {
+      background: linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-library) 100%);
+      justify-content: center;
+      align-items: center;
+      padding: 40px 24px;
+      text-align: center;
+    }
+
+    .gate-container {
+      position: relative;
+      margin-bottom: 40px;
+    }
+
+    .gate {
+      width: 200px;
+      height: 260px;
+      background: linear-gradient(180deg, var(--wood-dark) 0%, var(--wood-light) 100%);
+      border-radius: 100px 100px 0 0;
+      position: relative;
+      margin: 0 auto;
+      box-shadow: 
+        inset 0 0 30px rgba(0,0,0,0.5),
+        0 10px 40px rgba(0,0,0,0.5);
+    }
+
+    .gate-inner {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      right: 20px;
+      bottom: 0;
+      background: linear-gradient(180deg, #1a1030 0%, #2d1f4a 100%);
+      border-radius: 80px 80px 0 0;
+    }
+
+    .lamp {
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 50px;
+    }
+    .lamp-body {
+      width: 30px;
+      height: 35px;
+      background: var(--wood-dark);
+      border-radius: 5px 5px 15px 15px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .lamp-glow {
+      position: absolute;
+      top: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 20px;
+      height: 20px;
+      background: var(--lamp-glow);
+      border-radius: 50%;
+      box-shadow: 
+        0 0 20px var(--lamp-glow),
+        0 0 40px var(--lamp-glow),
+        0 0 60px rgba(244, 208, 63, 0.5);
+      animation: lampFlicker 4s infinite ease-in-out;
+    }
+    @keyframes lampFlicker {
+      0%, 100% { opacity: 0.9; }
+      50% { opacity: 1; }
+    }
+
+    .welcome-text {
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+    .welcome-sub {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 40px;
+    }
+
+    .enter-btn {
+      background: linear-gradient(135deg, var(--button-primary) 0%, var(--accent-purple) 100%);
+      color: white;
+      border: none;
+      padding: 16px 48px;
+      font-size: 18px;
+      font-family: inherit;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(125, 92, 184, 0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .enter-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(125, 92, 184, 0.5);
+    }
+    .enter-btn:active {
+      transform: translateY(0);
+    }
+
+    .lang-switch {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      gap: 8px;
+    }
+    .lang-btn {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: var(--text-secondary);
+      padding: 8px 12px;
+      font-size: 12px;
+      font-family: inherit;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .lang-btn.active {
+      background: var(--accent-gold);
+      color: var(--bg-deep);
+      border-color: var(--accent-gold);
+    }
+
+    /* ========================================
+       本棚画面
+    ======================================== */
+    .bookshelf-screen {
+      background: linear-gradient(180deg, var(--bg-library) 0%, var(--bg-shelf) 100%);
+      padding: 20px;
+    }
+
+    .bookshelf-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .bookshelf-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .bookshelf-sub {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .shelf-container {
+      flex: 1;
+      position: relative;
+    }
+
+    .shelf-row {
+      background: linear-gradient(180deg, var(--wood-dark) 0%, var(--wood-light) 100%);
+      border-radius: 8px;
+      padding: 20px 16px 12px;
+      margin-bottom: 20px;
+      box-shadow: 
+        inset 0 2px 4px rgba(255,255,255,0.1),
+        0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .books-row {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .book-item {
+      flex: 0 0 auto;
+      width: 100px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .book-item:hover {
+      transform: translateY(-4px);
+    }
+
+    .book-cover {
+      width: 100px;
+      height: 140px;
+      border-radius: 4px 12px 12px 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 
+        2px 2px 8px rgba(0,0,0,0.4),
+        inset -2px 0 4px rgba(0,0,0,0.2);
+      margin-bottom: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ひかりのたね */
+    .cover-hikari {
+      background: linear-gradient(135deg, #1a1040 0%, #2d1f5a 50%, #1a1040 100%);
+    }
+    .cover-hikari .cover-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+    .cover-hikari .cover-text {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--lamp-glow);
+      text-shadow: 0 0 10px var(--lamp-glow);
+    }
+
+    /* 表紙画像の共通スタイル */
+    .cover-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: center;
+      display: block;
+      border-radius: 4px 12px 12px 4px;
+    }
+
+    /* まよいみちのコンパス */
+    .cover-compass {
+      background: linear-gradient(135deg, #1a3d2a 0%, #2d5a3d 50%, #1a3d2a 100%);
+    }
+    .cover-compass .cover-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+    .cover-compass .cover-text {
+      font-size: 11px;
+      font-weight: 700;
+      color: #90EE90;
+      text-shadow: 0 0 10px #90EE90;
+      line-height: 1.3;
+    }
+
+    /* あしたもいるよ */
+    .cover-ashita {
+      background: linear-gradient(135deg, #2a4a1a 0%, #3d6b2a 50%, #2a4a1a 100%);
+    }
+    .cover-ashita .cover-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+    .cover-ashita .cover-text {
+      font-size: 11px;
+      font-weight: 700;
+      color: #90EE90;
+      text-shadow: 0 0 10px #90EE90;
+      line-height: 1.3;
+    }
+
+    /* ありがとうのかくれんぼ */
+    .cover-arigatou {
+      background: linear-gradient(135deg, #4a2a1a 0%, #6b4423 50%, #4a2a1a 100%);
+    }
+    .cover-arigatou .cover-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+    .cover-arigatou .cover-text {
+      font-size: 10px;
+      font-weight: 700;
+      color: #FFB347;
+      text-shadow: 0 0 10px #FFB347;
+      line-height: 1.3;
+    }
+
+    /* きみのおとがきこえるよ */
+    .cover-oto {
+      background: linear-gradient(135deg, #0a1628 0%, #1a2a4a 50%, #0a1628 100%);
+    }
+    .cover-oto .cover-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+    .cover-oto .cover-text {
+      font-size: 10px;
+      font-weight: 700;
+      color: #C0C0C0;
+      text-shadow: 0 0 10px #E8E8E8;
+      line-height: 1.3;
+    }
+
+    /* 幸福の王子 */
+    .cover-koufuku {
+      background: linear-gradient(135deg, #2a1a3d 0%, #3d2a5a 50%, #2a1a3d 100%);
+    }
+    .cover-koufuku .cover-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+    .cover-koufuku .cover-text {
+      font-size: 11px;
+      font-weight: 700;
+      color: #FFD700;
+      text-shadow: 0 0 10px #FFD700;
+      line-height: 1.3;
+    }
+
+    /* ごんぎつね */
+    .cover-gon {
+      background: linear-gradient(135deg, #3d2a1a 0%, #5a3a2a 50%, #3d2a1a 100%);
+    }
+    .cover-gon .cover-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+    .cover-gon .cover-text {
+      font-size: 11px;
+      font-weight: 700;
+      color: #FFA500;
+      text-shadow: 0 0 10px #FFA500;
+      line-height: 1.3;
+    }
+    .cover-taiyou {
+      background: linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FFD700 100%);
+    }
+    .cover-taiyou .cover-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+    .cover-taiyou .cover-text {
+      font-size: 11px;
+      font-weight: 700;
+      color: #FFFFFF;
+      text-shadow: 0 0 10px #FFFFFF;
+      line-height: 1.3;
+    }
+    .cover-ojiisan {
+      background: linear-gradient(135deg, #8B4513 0%, #A0522D 50%, #8B4513 100%);
+    }
+    .cover-ojiisan .cover-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+    .cover-ojiisan .cover-text {
+      font-size: 11px;
+      font-weight: 700;
+      color: #FFFFFF;
+      text-shadow: 0 0 10px #FFFFFF;
+      line-height: 1.3;
+    }
+    .cover-hoshi {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    }
+    .cover-hoshi .cover-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+    .cover-hoshi .cover-text {
+      font-size: 11px;
+      font-weight: 700;
+      color: #FFD700;
+      text-shadow: 0 0 10px #FFD700;
+      line-height: 1.3;
+    }
+
+    .book-empty {
+      background: rgba(255,255,255,0.05);
+      border: 2px dashed rgba(255,255,255,0.2);
+      color: var(--text-secondary);
+      font-size: 11px;
+    }
+
+    .book-title {
+      font-size: 12px;
+      color: var(--text-primary);
+    }
+
+    /* NEWバッジ */
+    .new-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: #FF6B6B;
+      color: white;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    /* 準備中バナー */
+    .preparing-banner {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0,0,0,0.7);
+      color: #FFD700;
+      font-size: 9px;
+      padding: 4px;
+      text-align: center;
+    }
+
+    .back-home-btn {
+      display: block;
+      margin: 20px auto 0;
+      background: transparent;
+      border: 1px solid var(--text-secondary);
+      color: var(--text-secondary);
+      padding: 12px 32px;
+      font-size: 14px;
+      font-family: inherit;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .back-home-btn:hover {
+      background: rgba(255,255,255,0.1);
+      color: var(--text-primary);
+    }
+
+    /* ========================================
+       朗読画面
+    ======================================== */
+    .reading-screen {
+      background: var(--bg-deep);
+    }
+
+    .reading-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      background: rgba(0,0,0,0.3);
+    }
+    .close-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 24px;
+      cursor: pointer;
+      padding: 4px 8px;
+    }
+    .reading-book-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .page-indicator {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .pages-container {
+      flex: 1;
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+    }
+    .pages-container::-webkit-scrollbar {
+      display: none;
+    }
+
+    .page {
+      flex: 0 0 100%;
+      scroll-snap-align: start;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
+
+    .illustration-area {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    /* 北風と太陽：挿絵を下に下げる */
+    .page[data-book="kitakaze_to_taiyou"] .illustration-area {
+      align-items: flex-end;
+      padding-bottom: 40px;
+    }
+
+    .illustration {
+      width: 100%;
+      max-width: 300px;
+      aspect-ratio: 4/3;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .illustration-placeholder {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, var(--bg-library) 0%, var(--bg-shelf) 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .illustration-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 16px;
+    }
+    .placeholder-icon {
+      font-size: 64px;
+      margin-bottom: 8px;
+    }
+    .placeholder-text {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .text-area {
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 24px;
+      min-height: 180px;
+    }
+    .story-text {
+      font-size: 16px;
+      line-height: 2;
+      color: var(--text-primary);
+    }
+
+    .reading-controls {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      padding: 20px;
+      background: rgba(0,0,0,0.3);
+    }
+    .control-btn {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: none;
+      background: var(--button-primary);
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .control-btn:hover {
+      background: var(--button-hover);
+      transform: scale(1.05);
+    }
+    .control-btn.secondary {
+      background: rgba(255,255,255,0.1);
+      width: 48px;
+      height: 48px;
+      font-size: 20px;
+    }
+
+    .reading-footer {
+      padding: 16px 20px;
+      text-align: center;
+    }
+    .to-dialogue-btn {
+      background: linear-gradient(135deg, var(--accent-gold) 0%, #d4a520 100%);
+      color: var(--bg-deep);
+      border: none;
+      padding: 14px 32px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      border-radius: 25px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(232, 185, 35, 0.3);
+    }
+    .skip-reading-btn {
+      display: block;
+      margin: 12px auto 0;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    /* ========================================
+       対話画面
+    ======================================== */
+    .dialogue-screen {
+      background: linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-library) 100%);
+      padding: 40px 24px;
+      text-align: center;
+    }
+
+    /* ルノ用 */
+    .dialogue-screen.runo {
+      background: linear-gradient(180deg, #0f0f1a 0%, #1a1525 100%);
+    }
+    /* ピリカ用 */
+    .dialogue-screen.pirika {
+      background: linear-gradient(180deg, #0f1a12 0%, #1a2520 100%);
+    }
+    /* ミル用 */
+    .dialogue-screen.miru {
+      background: linear-gradient(180deg, #1a120a 0%, #2a1a10 100%);
+    }
+    /* リン用 */
+    .dialogue-screen.rin {
+      background: linear-gradient(180deg, #0a1020 0%, #101830 100%);
+    }
+
+    .dialogue-header {
+      margin-bottom: 32px;
+    }
+    .dialogue-header p {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .character-area {
+      margin-bottom: 24px;
+    }
+    .character-image {
+      width: 160px;
+      height: 160px;
+      margin: 0 auto 16px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 80px;
+      box-shadow: 0 0 40px rgba(244, 208, 63, 0.2);
+    }
+    /* ルノのキャラ背景 */
+    .character-image.runo {
+      background: linear-gradient(135deg, #2d1f5a 0%, #1a1040 100%);
+    }
+    /* ピリカのキャラ背景 */
+    .character-image.pirika {
+      background: linear-gradient(135deg, #2d5a3d 0%, #1a3d2a 100%);
+    }
+    /* ミルのキャラ背景 */
+    .character-image.miru {
+      background: linear-gradient(135deg, #6b4423 0%, #4a2a1a 100%);
+    }
+    /* リンのキャラ背景 */
+    .character-image.rin {
+      background: linear-gradient(135deg, #1a2a4a 0%, #0a1628 100%);
+      box-shadow: 0 0 40px rgba(192, 192, 192, 0.3);
+    }
+    .character-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .character-status {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .dialogue-bubble {
+      background: rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 32px;
+      font-size: 16px;
+      line-height: 1.8;
+      color: var(--text-primary);
+      position: relative;
+    }
+    .dialogue-bubble::after {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 10px solid transparent;
+      border-bottom-color: rgba(255,255,255,0.08);
+    }
+
+    .talk-btn {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(135deg, var(--button-primary) 0%, var(--accent-purple) 100%);
+      color: white;
+      font-size: 32px;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(125, 92, 184, 0.4);
+      transition: all 0.2s;
+      margin-bottom: 12px;
+    }
+    .talk-btn:hover {
+      transform: scale(1.05);
+    }
+    .talk-btn.recording {
+      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+      animation: pulse 1s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); }
+      50% { box-shadow: 0 0 0 15px rgba(231, 76, 60, 0); }
+    }
+    .talk-hint {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .end-dialogue-btn {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: transparent;
+      border: 1px solid var(--text-secondary);
+      color: var(--text-secondary);
+      padding: 10px 24px;
+      font-size: 13px;
+      font-family: inherit;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+    /* ========================================
+       準備中モーダル
+    ======================================== */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-content {
+      background: var(--bg-library);
+      border-radius: 20px;
+      padding: 32px;
+      text-align: center;
+      max-width: 300px;
+      margin: 20px;
+    }
+    .modal-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+    .modal-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+    .modal-text {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .modal-btn {
+      background: var(--button-primary);
+      color: white;
+      border: none;
+      padding: 12px 32px;
+      font-size: 14px;
+      font-family: inherit;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+  <link rel="stylesheet" href="freemium.css">
+</head>
+<body>
+  <div class="app">
+    <!-- ========================================
+         ホーム画面
+    ======================================== -->
+    <div id="home-screen" class="screen home-screen active">
+      <div class="stars" id="home-stars"></div>
+      
+      <div class="lang-switch">
+        <button class="lang-btn active" onclick="setLanguage('ja')">にほんご</button>
+        <button class="lang-btn" onclick="setLanguage('en')">English</button>
+      </div>
+      
+      <div class="gate-container">
+        <div class="lamp">
+          <div class="lamp-body">
+            <div class="lamp-glow"></div>
+          </div>
+        </div>
+        <div class="gate">
+          <div class="gate-inner"></div>
+        </div>
+      </div>
+      
+      <h1 class="welcome-text" id="welcome-text">ようこそ、ほんの せかいへ。</h1>
+      <p class="welcome-sub" id="welcome-sub">ふしぎな としょかん</p>
+      
+      <button class="enter-btn" onclick="showScreen('bookshelf-screen')" id="enter-btn">
+        はいる
+      </button>
+    </div>
+
+    <!-- ========================================
+         本棚画面
+    ======================================== -->
+    <div id="bookshelf-screen" class="screen bookshelf-screen">
+      <div class="stars" id="shelf-stars"></div>
+      
+      <header class="bookshelf-header">
+        <h2 class="bookshelf-title" id="bookshelf-title">ほんだな</h2>
+        <p class="bookshelf-sub" id="bookshelf-sub">よみたい ほんを えらんでね</p>
+      </header>
+      
+      <div class="shelf-container">
+        <!-- ほこりのキラキラ -->
+        <div class="dust" style="left: 20%; top: 30%; animation-delay: 0s;"></div>
+        <div class="dust" style="left: 60%; top: 50%; animation-delay: 2s;"></div>
+        <div class="dust" style="left: 80%; top: 20%; animation-delay: 4s;"></div>
+        
+        <!-- 本棚（すべての本を詰めて表示） -->
+        <div class="shelf-row">
+          <div class="books-row">
+            <!-- ひかりのたね -->
+            <div class="book-item" data-book-id="hikari_no_tane" onclick="selectBook('hikari_no_tane')">
+              <div class="book-cover cover-hikari">
+                <img src="hikari_official/cover.png" alt="ひかりのたね" class="cover-image">
+              </div>
+              <p class="book-title" id="book-label-hikari">ひかりのたね</p>
+            </div>
+            
+            <!-- まよいみちのコンパス -->
+            <div class="book-item" data-book-id="mayoimichi_compass" onclick="selectBook('mayoimichi_compass')">
+              <div class="book-cover cover-compass">
+                <img src="pirika_official/cover.png" alt="まよいみちのコンパス" class="cover-image">
+              </div>
+              <p class="book-title" id="book-label-compass">まよいみちのコンパス</p>
+            </div>
+            
+            <!-- ありがとうのかくれんぼ -->
+            <div class="book-item" data-book-id="arigatou_kakurenbo" onclick="selectBook('arigatou_kakurenbo')">
+              <div class="book-cover cover-arigatou">
+                <span class="lock-icon">🔒</span>
+                <img src="miru_official/cover.png" alt="ありがとうのかくれんぼ" class="cover-image">
+              </div>
+              <p class="book-title" id="book-label-arigatou">ありがとうのかくれんぼ</p>
+            </div>
+            
+            <!-- きみのおとがきこえるよ -->
+            <div class="book-item" data-book-id="kimi_no_oto" onclick="selectBook('kimi_no_oto')">
+              <div class="book-cover cover-oto">
+                <span class="lock-icon">🔒</span>
+                <img src="rin_official/cover.png" alt="きみのおとがきこえるよ" class="cover-image">
+              </div>
+              <p class="book-title" id="book-label-oto">きみのおとがきこえるよ</p>
+            </div>
+            
+            <!-- あしたもいるよ - NEW! -->
+            <div class="book-item" data-book-id="ashita_mo_iruyo" onclick="selectBook('ashita_mo_iruyo')">
+              <div class="book-cover cover-ashita">
+                <span class="lock-icon">🔒</span>
+                <span class="new-badge">NEW</span>
+                <img src="koron_official/cover.png" alt="あしたもいるよ" class="cover-image">
+              </div>
+              <p class="book-title" id="book-label-ashita">あしたもいるよ</p>
+            </div>
+            
+            <!-- てぶくろを買いに - 古典童話シリーズ -->
+            <div class="book-item" data-book-id="tebukuro_wo_kai_ni" onclick="selectBook('tebukuro_wo_kai_ni')">
+              <div class="book-cover cover-tebukuro">
+                <span class="lock-icon">🔒</span>
+                <img src="kogitsune_official/cover.png" alt="てぶくろを買いに" class="cover-image">
+              </div>
+              <p class="book-title" id="book-label-tebukuro">てぶくろを買いに</p>
+            </div>
+            
+            <!-- 幸福の王子 - 古典童話シリーズ（海外） -->
+            <div class="book-item" data-book-id="koufuku_no_ouji" onclick="selectBook('koufuku_no_ouji')">
+              <div class="book-cover cover-koufuku">
+                <span class="lock-icon">🔒</span>
+                <img src="tsubame_official/cover.png" alt="幸福の王子" class="cover-image">
+              </div>
+              <p class="book-title" id="book-label-koufuku">幸福の王子</p>
+            </div>
+            
+            <!-- ごんぎつね - 古典童話シリーズ（日本） -->
+            <div class="book-item" data-book-id="gongitsune" onclick="selectBook('gongitsune')">
+              <div class="book-cover cover-gon">
+                <span class="lock-icon">🔒</span>
+                <img src="gon_official/cover.png" alt="ごんぎつね" class="cover-image">
+              </div>
+              <p class="book-title" id="book-label-gon">ごんぎつね</p>
+            </div>
+            
+            <!-- 北風と太陽 - 古典童話シリーズ（海外）第2作 -->
+            <div class="book-item" data-book-id="kitakaze_to_taiyou" onclick="selectBook('kitakaze_to_taiyou')">
+              <div class="book-cover cover-taiyou">
+                <span class="lock-icon">🔒</span>
+                <img src="taiyou_official/cover.png" alt="北風と太陽" class="cover-image">
+              </div>
+              <p class="book-title" id="book-label-taiyou">北風と太陽</p>
+            </div>
+            
+            <!-- かさじぞう - 古典童話シリーズ（日本）第3作 -->
+            <div class="book-item" data-book-id="kasajizou" onclick="selectBook('kasajizou')">
+              <div class="book-cover cover-ojiisan">
+                <span class="lock-icon">🔒</span>
+                <img src="ojiisan_official/cover.png" alt="かさじぞう" class="cover-image">
+              </div>
+              <p class="book-title" id="book-label-ojiisan">かさじぞう</p>
+            </div>
+            
+            <!-- ほしのたからもの - オリジナル作品第6作 -->
+            <div class="book-item" data-book-id="hoshi_no_takaramono" onclick="selectBook('hoshi_no_takaramono')">
+              <div class="book-cover cover-hoshi">
+                <span class="lock-icon">🔒</span>
+                <img src="hoshi_official/cover.png" alt="ほしのたからもの" class="cover-image">
+              </div>
+              <p class="book-title" id="book-label-hoshi">ほしのたからもの</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <button class="back-home-btn" onclick="showScreen('home-screen')" id="back-home-btn">
+        もどる
+      </button>
+    </div>
+
+    <!-- ========================================
+         朗読画面
+    ======================================== -->
+    <div id="reading-screen" class="screen reading-screen">
+      <header class="reading-header">
+        <button class="close-btn" onclick="goToBookshelf()">✕</button>
+        <span class="reading-book-title" id="reading-book-title">ひかりのたね</span>
+        <span class="page-indicator" id="page-indicator">1 / 8</span>
+      </header>
+      
+      <div class="pages-container" id="pages-container">
+        <!-- ページは動的に生成されます -->
+      </div>
+      
+      <div class="reading-controls">
+        <button class="control-btn secondary" onclick="prevPage()">◀</button>
+        <button class="control-btn" id="play-btn" onclick="togglePlay()">▶</button>
+        <button class="control-btn secondary" onclick="nextPage()">▶</button>
+      </div>
+      
+      <div class="reading-footer">
+        <button class="to-dialogue-btn" onclick="goToDialogue()" id="to-dialogue-btn">
+          おはなし する
+        </button>
+        <button class="skip-reading-btn" onclick="goToDialogue()" id="skip-reading-btn">
+          よみきかせを スキップ
+        </button>
+      </div>
+    </div>
+
+    <!-- ========================================
+         対話画面
+    ======================================== -->
+    <div id="dialogue-screen" class="screen dialogue-screen">
+      <div class="stars" id="dialogue-stars"></div>
+      
+      <div class="dialogue-header">
+        <p id="dialogue-header-text">おはなしの せかいへ ようこそ</p>
+      </div>
+      
+      <div class="character-area">
+        <div class="character-image" id="character-image">🌟</div>
+        <p class="character-name" id="character-name">ルノ</p>
+        <p class="character-status" id="character-status">おはなし できるよ</p>
+      </div>
+      
+      <div class="dialogue-bubble" id="dialogue-bubble">
+        おはなし きいてくれて<br>ありがとう。<br><br>
+        きみは どんなことを<br>かんじた？
+      </div>
+      
+      <button class="talk-btn" id="talk-btn" onclick="toggleTalk()">🎤</button>
+      <p class="talk-hint" id="talk-hint">タップして はなしてね</p>
+      
+      <button class="end-dialogue-btn" onclick="endDialogue()" id="end-dialogue-btn">
+        おわる
+      </button>
+    </div>
+
+    <!-- ========================================
+         準備中モーダル
+    ======================================== -->
+    <div id="preparing-modal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-icon">📖</div>
+        <h3 class="modal-title" id="modal-title">よみきかせ じゅんびちゅう</h3>
+        <p class="modal-text" id="modal-text">
+          よみきかせは まだ じゅんびちゅう です。<br>
+          おはなしは できるよ！
+        </p>
+        <button class="modal-btn" onclick="closeModal()">わかった</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ========================================
+    // 状態管理
+    // ========================================
+    let currentLanguage = 'ja';
+    let currentBook = null;
+    let currentCharacter = null; // 'runo' or 'pirika'
+    let currentPage = 1;
+    let totalPages = 8;
+    let isPlaying = false;
+    let isRecording = false;
+    let ws = null; // WebSocket接続
+    let audioElement = null; // 音声再生用（朗読画面）
+    let playingPage = null; // 現在再生中のページ番号（ページ切替検知用）
+    // 対話画面の音声再生用
+    let audioContext = null; // AudioContext
+    let audioQueue = []; // 音声データのキュー
+    let isPlayingResponse = false; // 応答音声再生中フラグ
+    // 録音用
+    let mediaStream = null; // マイクストリーム
+    let audioProcessor = null; // 音声処理用ScriptProcessor
+
+    // ========================================
+    // 絵本データ
+    // ========================================
+    const bookData = {
+      hikari_no_tane: {
+        character: 'runo',
+        titles: { ja: 'ひかりのたね', en: 'The Seed of Light' },
+        ttsReady: true, // 読み聞かせ準備完了
+        ja: [
+          { page: 1, icon: '🌟', text: '夜空のずっとずっと奥に、小さな村がありました。\nそこには「夜の子」たちがくらしています。夜の子たちは毎晩、お星さまをみがいたり、夢をはこんだりするお仕事をしています。\nルノはまだ小さい夜の子。だからお仕事はもらえません。\n「ぼくもなにかしたいなあ」\nルノはいつも遠くから、みんなを見つめていました。' },
+          { page: 2, icon: '👵', text: 'ある夜、おばあさん星がルノをよびました。\n「ルノや、おねがいがあるんだよ」\nおばあさん星の手には、金色にかがやく小さなつぶがありました。\n「これはね、『ひかりのたね』というんだ。夜空のむこうのお月さまにとどけてほしいんだよ」\nルノはびっくりしました。夜空のむこうなんて、行ったことがありません。\n「ぼ、ぼくにできるかな......」' },
+          { page: 3, icon: '🌙', text: 'おばあさん星はやさしくわらいました。\n「だいじょうぶ。このたねがルノをてらしてくれるからね」\nルノはたねをぎゅっとにぎって、村をでました。\n夜空はどこまでもくらくて、しずかです。\n「こわいな......でも、お月さまがまっているんだ」\nたねの小さい光だけをたよりに、ルノはすこしずつ進んでいきました。' },
+          { page: 4, icon: '🪲', text: 'どのくらい飛んだでしょう。\nとつぜん、小さな声がきこえてきました。\n「うう......おうちがわからない......」\nまいごのほたるでした。光がとてもよわよわしいです。\n「だ、だいじょうぶ？」\nルノはしんぱいして声をかけました。ほたるはルノを見て、すこしだけ目があかるくなりました。\n「もうつかれて、とべないの......」' },
+          { page: 5, icon: '💫', text: 'ルノはすこしまよいました。でも------\n「あのね、ぼくのたねの光、すこしわけてあげる」\nルノはそっとたねをほたるにちかづけました。すると、たねの光がほたるにうつって、ほたるの体がふわっと明るくなりました。\n「わあ！ とべる！ ありがとう！」\nほたるはうれしそうに夜空をとんでいきました。' },
+          { page: 6, icon: '⭐', text: 'ルノはちょっとしんぱいになりました。光をわけたら、たねが暗くなっちゃったかな......？\nでも見てみると、たねは暗くなっていませんでした。むしろ、まえよりすこしあかるくなっている気がします。\n「ふしぎだな......」\nルノはまた歩きはじめました。' },
+          { page: 7, icon: '🌕', text: 'やがて、大きなお月さまが見えてきました。\n「やっと ついた......！」\nルノはお月さまにたねをわたしました。\n「よくがんばったね、ルノ」\nお月さまはやさしくほほえんで、たねを夜空にまきました。すると------\nたねはキラキラとひかって、あたらしい星になりました。' },
+          { page: 8, icon: '✨', text: '「やさしさをわけると、光はへらないんだよ。むしろ、もっとふえるんだ」\nお月さまのことばが、ルノの胸にあたたかくひびきました。\nルノは夜空を見あげました。自分がまいたほたるの光も、あたらしい星も、みんなキラキラかがやいています。\n「ぼくにも、できることがあったんだ」\nルノの胸に、小さなひかりのたねが うまれていました。' }
+        ],
+        en: [
+          { page: 1, icon: '🌟', text: 'Far, far beyond the night sky, there was a small village.\nThe "children of the night" lived there. Every night, they polished the stars and carried dreams.\nRuno was still a small child of the night. So he couldn\'t get any work yet.\n"I wish I could do something too..."\nRuno always watched everyone from afar.' },
+          { page: 2, icon: '👵', text: 'One night, Grandma Star called Runo.\n"Runo, I have a favor to ask."\nIn Grandma Star\'s hand was a small, golden glowing seed.\n"This is called the \'Seed of Light.\' I want you to deliver it to the Moon beyond the night sky."\nRuno was surprised. He had never been beyond the night sky.\n"C-can I do it...?"' },
+          { page: 3, icon: '🌙', text: 'Grandma Star smiled gently.\n"You\'ll be fine. This seed will light your way."\nRuno held the seed tightly and left the village.\nThe night sky was endlessly dark and quiet.\n"I\'m scared... but the Moon is waiting."\nWith only the seed\'s small light to guide him, Runo moved forward little by little.' },
+          { page: 4, icon: '🪲', text: 'How long had he been flying?\nSuddenly, he heard a small voice.\n"I can\'t find my way home..."\nIt was a lost firefly. Its light was very weak.\n"A-are you okay?"\nRuno called out with concern. The firefly looked at Runo, and its eyes brightened a little.\n"I\'m so tired, I can\'t fly anymore..."' },
+          { page: 5, icon: '💫', text: 'Runo hesitated for a moment. But then—\n"Here, let me share some of my seed\'s light with you."\nRuno gently brought the seed close to the firefly. Then, the seed\'s light transferred to the firefly, and its body glowed softly.\n"Wow! I can fly! Thank you!"\nThe firefly flew happily into the night sky.' },
+          { page: 6, icon: '⭐', text: 'Runo got a little worried. Did the seed get dimmer because he shared its light...?\nBut when he looked, the seed wasn\'t dimmer at all. In fact, it seemed even brighter than before.\n"How strange..."\nRuno started walking again.' },
+          { page: 7, icon: '🌕', text: 'Finally, the big Moon came into view.\n"I made it...!"\nRuno gave the seed to the Moon.\n"You did well, Runo."\nThe Moon smiled gently and scattered the seed across the night sky. Then—\nThe seed sparkled and became a new star.' },
+          { page: 8, icon: '✨', text: '"When you share kindness, the light doesn\'t get smaller. It grows even bigger."\nThe Moon\'s words echoed warmly in Runo\'s heart.\nRuno looked up at the night sky. The firefly\'s light he had shared and the new star were all shining brightly.\n"I could do something after all."\nIn Runo\'s heart, a small seed of light was born.' }
+        ]
+      },
+      
+      // ===== 2作目：まよいみちのコンパス =====
+      mayoimichi_compass: {
+        character: 'pirika',
+        titles: { ja: 'まよいみちのコンパス', en: 'The Compass of Lost Paths' },
+        ttsReady: true, // 読み聞かせ準備完了
+        ja: [
+          { page: 1, icon: '🦔', text: '森のまんなかに、小さなハリネズミがすんでいました。\n名前はピリカ。やさしくて、みんなに好かれています。\nでもピリカには、ひとつだけ苦手なことがありました。\nそれは「決めること」です。\n「右の道と左の道、どっちに行こう......」\nピリカはいつも、分かれ道の前で止まってしまうのでした。' },
+          { page: 2, icon: '😵‍💫', text: '「右に行ったらこわい動物がいるかも......」\n「左に行ったら迷子になるかも......」\n「やっぱり右かな。でも、もし......」\nぐるぐる、ぐるぐる。\n頭の中で同じことをずっと考えて、足は一歩も動きません。\n気がつくと、夕方になっていました。' },
+          { page: 3, icon: '🦉', text: '「また決められなかった......」\nピリカはしょんぼり座りこみました。\nすると、木の上から声がしました。\n「おや、今日も迷っているのかい」\nフクロウのおじいさんでした。首に古いコンパスをかけています。\n「おじいさん、ぼく、どっちに行けばいいかわからないんだ」' },
+          { page: 4, icon: '🧭', text: 'おじいさんは静かにコンパスを外して、ピリカに渡しました。\n「これは『まよいみちのコンパス』。でもね、正解の道を教えてくれるわけじゃないんだ」\nピリカは不思議そうに見つめました。\n「じゃあ、何のためのコンパスなの？」\n「見ていてごらん。きみが一歩踏み出すと、動き出すんだよ」' },
+          { page: 5, icon: '✨', text: 'ピリカはコンパスを持って、右の道を見ました。\nこわいな。でも......。\nえいっ。小さな一歩を踏み出しました。\nすると、コンパスの針がくるりと回って、光りはじめたのです。\n「わあ！」\nピリカはびっくりして、もう一歩進みました。針はまた動きました。' },
+          { page: 6, icon: '🌸', text: '歩くたびに、コンパスは光って、次の一歩を照らしてくれます。\n右の道は、こわい場所じゃありませんでした。\nきれいな花がさいていて、小川がきらきら流れていました。\n「ずっと怖がってたけど、来てみたら素敵な場所だった」\nピリカの胸が、あたたかくなりました。' },
+          { page: 7, icon: '🦉', text: '帰り道、フクロウのおじいさんがまだいました。\n「おじいさん、わかった気がする」\n「ほう、なにがわかったんだい？」\n「ぐるぐる考えてるだけじゃ、何も変わらないんだね。でも、一歩進むと、次が見えてくるんだ」\nおじいさんは静かにうなずきました。' },
+          { page: 8, icon: '💚', text: '「悩んでいるときは、足が止まっている。でも考えて進むときは、足が動いているんだ」\nピリカはコンパスをぎゅっと持ちました。\n「このコンパス、大切にするね」\n「いいや、それはもうきみのものだよ。きみの中にあるんだから」\nピリカは自分の胸を見ました。\nあたたかい光が、そこにともっていました。' }
+        ],
+        en: [
+          { page: 1, icon: '🦔', text: 'In the middle of the forest, there lived a small hedgehog.\nHis name was Pirika. He was kind, and everyone liked him.\nBut Pirika had one thing he wasn\'t good at.\nThat was "making decisions."\n"Should I go right or left..."\nPirika always stopped in front of crossroads.' },
+          { page: 2, icon: '😵‍💫', text: '"What if there\'s a scary animal on the right..."\n"What if I get lost on the left..."\n"Maybe right after all. But what if..."\nRound and round, round and round.\nThinking the same thing over and over, his feet didn\'t move at all.\nBefore he knew it, it was evening.' },
+          { page: 3, icon: '🦉', text: '"I couldn\'t decide again..."\nPirika sat down sadly.\nThen, a voice came from up in the tree.\n"Oh, still lost today, are you?"\nIt was Grandfather Owl. He wore an old compass around his neck.\n"Grandfather, I don\'t know which way to go."' },
+          { page: 4, icon: '🧭', text: 'Grandfather quietly took off his compass and handed it to Pirika.\n"This is the \'Compass of Lost Paths.\' But it won\'t tell you the right answer."\nPirika looked at it curiously.\n"Then what is the compass for?"\n"Watch carefully. It starts moving when you take one step forward."' },
+          { page: 5, icon: '✨', text: 'Pirika held the compass and looked at the right path.\nIt\'s scary. But...\nHere goes! He took one small step.\nThen, the compass needle spun around and began to glow.\n"Wow!"\nPirika was surprised and took another step. The needle moved again.' },
+          { page: 6, icon: '🌸', text: 'With each step, the compass glowed and lit the way for the next step.\nThe right path wasn\'t a scary place at all.\nBeautiful flowers were blooming, and a stream sparkled as it flowed.\n"I was so scared, but it turned out to be a wonderful place."\nPirika\'s heart felt warm.' },
+          { page: 7, icon: '🦉', text: 'On the way back, Grandfather Owl was still there.\n"Grandfather, I think I understand now."\n"Oh? What did you understand?"\n"Just worrying in circles doesn\'t change anything. But when I take one step, I can see what\'s next."\nGrandfather nodded quietly.' },
+          { page: 8, icon: '💚', text: '"When you\'re worrying, your feet are stopped. But when you think and move forward, your feet are moving."\nPirika held the compass tightly.\n"I\'ll treasure this compass."\n"No, it\'s already yours. It\'s inside you now."\nPirika looked at his own chest.\nA warm light was glowing there.' }
+        ]
+      },
+      
+      // ===== 3作目：ありがとうのかくれんぼ =====
+      arigatou_kakurenbo: {
+        character: 'miru',
+        titles: { ja: 'ありがとうのかくれんぼ', en: 'Hide and Seek with Thank You' },
+        ttsReady: true, // 読み聞かせ準備完了
+        ja: [
+          { page: 1, icon: '🐿️', text: 'こりすのミルは、元気いっぱいの女の子。\n毎朝おかあさんが「おはよう」と声をかけてくれます。\nふわふわの布団から起きると、あたたかい朝ごはんがならんでいます。\nでもミルはあわてんぼうで「ありがとう」をあまり言いませんでした。\nだって当たり前のことだから。' },
+          { page: 2, icon: '❓', text: 'ある朝、目がさめると何かがおかしいのです。\n布団がありません。朝ごはんもありません。\nおかあさんの「おはよう」もきこえません。\n「あれ？　どうしたんだろう」\nミルはきょろきょろしました。' },
+          { page: 3, icon: '🦋', text: 'すると、まどから光るちょうちょが飛んできました。\n「きみ、だあれ？」\nちょうちょはまわりにきらめきながら飛びました。まるで「ついてきて」と言っているようです。\n「何か困っているのかな？」\nミルはちょうちょについていくことにしました。' },
+          { page: 4, icon: '👗', text: 'ちょうちょは台所の入り口にとまりました。\nそこにはおかあさんのエプロンがありました。毎朝早起きしてくれていたあかし。\n「あ......」\nミルは気づきました。これも「ありがとう」だったんだ。\n「ありがとう、おかあさんのエプロン」\nそう言うと、エプロンがふわっと光りました。' },
+          { page: 5, icon: '✨', text: 'ちょうちょは次の場所を教えてくれました。\n今度はミルのベッドです。毎晩つつんでくれる、ふわふわの布団。\n「ありがとう、あったかい布団」\n布団もふわっと光りました。\nそれからテーブル、いす、まど......\nミルは家のあちこちに「ありがとう」を見つけました。' },
+          { page: 6, icon: '🏠', text: '家の中がどんどん明るくなっていきます。\n「すごい......『ありがとう』ってこんなにあったんだ」\nちょうちょがさいごにとまったのは、おかあさんのそばでした。\nおかあさんは笑って、ミルを見ていました。\n「おかあさん......」' },
+          { page: 7, icon: '🤗', text: 'ミルはおかあさんにかけよりました。\n「おかあさん、いつもありがとう」\nおかあさんはにっこりわらって、ミルをぎゅっと抱きしめました。\n「ミル、気づいてくれたのね」\nちょうちょはきらきら光りながら、空の向こうに消えていきました。' },
+          { page: 8, icon: '🧡', text: '「ありがとう」は近くにいて、近くにいすぎて見えなくなっていたんだ。\nでも目をこらせば、いろんなところにかくれんぼしてる。\n朝ごはんのにおい、ふわふわの布団、「おはよう」の声。\nミルはその日から毎日、「ありがとう」をさがすのが好きになりました。\n「ありがとう、今日もよろしくね」\nミルの家はそれから、あたたかい光でいっぱいになりました。' }
+        ],
+        en: [
+          { page: 1, icon: '🐿️', text: 'Miru was an energetic little squirrel girl.\nEvery morning, her mother would say "Good morning" to wake her up.\nWhen she got out of her fluffy blanket, warm breakfast was already on the table.\nBut Miru was always in a hurry and rarely said "thank you."\nBecause it all seemed so normal.' },
+          { page: 2, icon: '❓', text: 'One morning, something felt strange when she woke up.\nThe blanket was gone. Breakfast was gone.\nShe couldn\'t hear her mother\'s "Good morning."\n"Huh? What happened?"\nMiru looked around nervously.' },
+          { page: 3, icon: '🦋', text: 'Then, a glowing butterfly flew in through the window.\n"Who are you?"\nThe butterfly sparkled as it flew around. It seemed to say "Follow me."\n"Are you in trouble?"\nMiru decided to follow the butterfly.' },
+          { page: 4, icon: '👗', text: 'The butterfly stopped at the kitchen entrance.\nThere was her mother\'s apron. A sign of waking up early every morning.\n"Oh..."\nMiru realized. This was also a "thank you."\n"Thank you, mother\'s apron."\nWhen she said that, the apron glowed softly.' },
+          { page: 5, icon: '✨', text: 'The butterfly showed her the next place.\nThis time it was Miru\'s bed. The fluffy blanket that wrapped her every night.\n"Thank you, warm blanket."\nThe blanket glowed too.\nThen the table, chair, window...\nMiru found "thank you" all around the house.' },
+          { page: 6, icon: '🏠', text: 'The house got brighter and brighter.\n"Wow... there were so many \'thank yous\'!"\nThe butterfly\'s last stop was next to her mother.\nHer mother was smiling, watching Miru.\n"Mother..."' },
+          { page: 7, icon: '🤗', text: 'Miru ran to her mother.\n"Mother, thank you for everything."\nHer mother smiled warmly and hugged Miru tight.\n"Miru, you finally noticed."\nThe butterfly sparkled as it disappeared into the sky.' },
+          { page: 8, icon: '🧡', text: '"Thank you" was so close that it became invisible.\nBut if you look carefully, it\'s hiding everywhere.\nThe smell of breakfast, the fluffy blanket, the "good morning" voice.\nFrom that day, Miru loved searching for "thank you" every day.\n"Thank you, let\'s have a good day today too."\nMiru\'s house became full of warm light from then on.' }
+        ]
+      },
+      
+      // ===== 4作目：きみのおとがきこえるよ =====
+      kimi_no_oto: {
+        character: 'rin',
+        titles: { ja: 'きみのおとがきこえるよ', en: 'I Can Hear Your Sound' },
+        ttsReady: true, // 読み聞かせ準備完了
+        ja: [
+          { page: 1, icon: '🎵', text: '森の広場で、音楽会がひらかれることになりました。\n楽器の妖精たちがあつまって、みんなで演奏するのです。\n小さなトライアングルのリンもよばれました。\n「ぼくも出てもいいのかな......」\nリンはうれしいような、不安なような気持ちでした。' },
+          { page: 2, icon: '🥁', text: '練習がはじまりました。\n太鼓のドンがたたきます。ドーン、ドーン！　大きくて強い音。\nフルートのフルルが吹きます。ピロロロ〜♪　きれいでのびやかな音。\nリンも鳴らしました。チリン。\n......小さな音。誰にも届いていない気がしました。' },
+          { page: 3, icon: '😢', text: '「ドンはすごいな、あんなに大きな音が出せて」\n「フルルはすごいな、あんなにきれいな音が出せて」\nリンは自分の音を鳴らしてみました。チリン。\n「ぼくの音は小さすぎる。誰にも届かない」\nリンはどんどん悲しくなりました。' },
+          { page: 4, icon: '🌙', text: '音楽会の夜がきました。\nみんなが演奏をはじめます。\nリンは舞台のすみっこでそっと立っていました。\n「ぼくなんかいなくても、だれも気づかないよね......」\nそのとき、夜空からやさしい光がおりてきました。' },
+          { page: 5, icon: '⭐', text: '小さな星でした。\n「リン、どうして泣いてるの？」\n「ぼくの音は小さくて、誰にも届かないんだ」\n星はふわりとわらいました。\n「届いてたよ。ぼく、ずっと聴いてたんだ」' },
+          { page: 6, icon: '💫', text: '「えっ、本当に？」\n「うん。きみの音はね、静かだけど届くんだ。にぎやかな音のなかで、チリンって聞こえると落ちつくの」\n「ぼくの音が......？」\n「大きい音だけがすごいわけじゃないよ。きみの音は、きみにしか出せないんだ」\nリンの目から涙がこぼれました。' },
+          { page: 7, icon: '🔔', text: 'リンは舞台にもどりました。\nドンがたたき、フルルが吹き、そしてリンも鳴らしました。\nチリン。\n小さな音。でもたしかに届く音。\n夜空の星たちがきらきらとまたたきました。' },
+          { page: 8, icon: '✨', text: '大きな音じゃなくていい。きれいな音じゃなくてもいい。\nきみの音は、きみだけのもの。\nだれかとくらべなくていいんだ。\n静かでも届いてる。ちゃんと聴いてくれている人がいる。\n「チリン」\nリンの音が、夜空にやさしくひびきました。' }
+        ],
+        en: [
+          { page: 1, icon: '🎵', text: 'A concert was going to be held in the forest clearing.\nThe instrument fairies gathered to play together.\nLittle triangle Rin was also invited.\n"Is it okay for me to perform too...?"\nRin felt both happy and anxious.' },
+          { page: 2, icon: '🥁', text: 'Practice began.\nDon the drum played. BOOM, BOOM! A big, strong sound.\nFlulu the flute played. Tweet tweet~♪ A beautiful, flowing sound.\nRin also played. Ting.\n...A small sound. It felt like no one could hear it.' },
+          { page: 3, icon: '😢', text: '"Don is amazing, making such a loud sound."\n"Flulu is amazing, making such a beautiful sound."\nRin tried playing again. Ting.\n"My sound is too small. No one can hear it."\nRin became sadder and sadder.' },
+          { page: 4, icon: '🌙', text: 'The night of the concert came.\nEveryone began to play.\nRin stood quietly in the corner of the stage.\n"No one would notice if I wasn\'t here..."\nJust then, a gentle light came down from the night sky.' },
+          { page: 5, icon: '⭐', text: 'It was a small star.\n"Rin, why are you crying?"\n"My sound is too small, it doesn\'t reach anyone."\nThe star smiled softly.\n"It reached me. I\'ve been listening all along."' },
+          { page: 6, icon: '💫', text: '"Really?"\n"Yes. Your sound is quiet, but it reaches. When I hear that \'ting\' among all the loud sounds, it calms me."\n"My sound...?"\n"Being loud isn\'t the only way to be great. Your sound is something only you can make."\nTears fell from Rin\'s eyes.' },
+          { page: 7, icon: '🔔', text: 'Rin returned to the stage.\nDon played, Flulu played, and Rin played too.\nTing.\nA small sound. But a sound that surely reached.\nThe stars in the night sky twinkled brightly.' },
+          { page: 8, icon: '✨', text: 'It doesn\'t have to be loud. It doesn\'t have to be beautiful.\nYour sound is yours alone.\nYou don\'t have to compare yourself to others.\nEven quiet sounds reach. Someone is listening.\n"Ting."\nRin\'s sound echoed gently in the night sky.' }
+        ]
+      },
+      
+      // ===== 5作目：あしたもいるよ =====
+      ashita_mo_iruyo: {
+        character: 'koron',
+        titles: { ja: 'あしたもいるよ', en: 'I\'ll Be Here Tomorrow Too' },
+        ttsReady: true, // 読み聞かせ準備完了
+        ja: [
+          { page: 1, icon: '🌳', text: '森のまんなかに、大きな樫の木がありました。みんなは「おじいちゃんの木」とよんでいます。小さなどんぐりのコロンは、おじいちゃんの木が大好きです。枝でブランコをしたり、お話を聞いたり。「おじいちゃん、今日もあそぼう！」' },
+          { page: 2, icon: '🍂', text: 'ある日、コロンは気づきました。おじいちゃんの木の葉っぱが、一枚、また一枚と落ちていきます。「おじいちゃん、葉っぱがなくなっちゃうよ」「ああ、秋だからね。だいじょうぶだよ」おじいちゃんの木の声は、いつもよりすこし小さく聞こえました。' },
+          { page: 3, icon: '❄️', text: '冬がきて、おじいちゃんの木は静かになりました。葉っぱはぜんぶ落ちて、枝だけになっています。「おじいちゃん、元気ないの？」「すこし眠いんだよ。冬はゆっくりお休みするんだ」コロンは不安になりました。' },
+          { page: 4, icon: '😢', text: '「おじいちゃん、どこかに行っちゃうの？」コロンの目から涙がこぼれそうになりました。おじいちゃんの木は、ゆっくりと言いました。「いかないよ。葉っぱは落ちても、根っこはここにあるからね」「ねっこ？」' },
+          { page: 5, icon: '🌱', text: '「土の下にね、ぼくの根っこがあるんだ。見えないけど、ずっとここにあるの」おじいちゃんの木はつづけました。「葉っぱが落ちても、枝がさみしくなっても、根っこは変わらないんだよ」「じゃあ、おじいちゃんはいなくならないの？」「あしたも、あさっても、ずっとここにいるよ」' },
+          { page: 6, icon: '🤗', text: 'コロンはおじいちゃんの木の幹にぎゅっと抱きつきました。「よかった......」冷たい冬の日、おじいちゃんの木はあたたかくて、しっかりしていました。「かたちは変わることがあるよ。でもね、コロンのことが大好きな気持ちは変わらないんだ」コロンは涙をふいて、うなずきました。' },
+          { page: 7, icon: '🌸', text: '長い冬がすぎ、春がきました。小鳥のピイが飛んできて、歌いました。「見て、見て！」おじいちゃんの木の枝に、小さな緑の芽がふいていました。「おじいちゃん！　芽が出たよ！」' },
+          { page: 8, icon: '🌳', text: '「ほらね、言ったでしょう」おじいちゃんの木の声は、また元気になっていました。かたちは変わる。でも、つながりは消えない。だいすきな気持ちは、根っこみたいにずっとある。「おじいちゃん、あしたもあそぼうね」「ああ、あしたもいるよ」' }
+        ],
+        en: [
+          { page: 1, icon: '🌳', text: 'In the middle of the forest, there was a large oak tree. Everyone called it "Grandpa Tree." Little acorn Koron loved Grandpa Tree very much. She would swing on the branches and listen to stories. "Grandpa, let\'s play today too!" ' },
+          { page: 2, icon: '🍂', text: 'One day, Koron noticed. Grandpa Tree\'s leaves were falling, one by one. "Grandpa, the leaves are falling!" "Ah, it\'s autumn. It\'s okay." Grandpa Tree\'s voice sounded a little quieter than usual.' },
+          { page: 3, icon: '❄️', text: 'Winter came, and Grandpa Tree became quiet. All the leaves had fallen, leaving only bare branches. "Grandpa, are you okay?" "I\'m a bit sleepy. Winter is time to rest slowly." Koron became worried.' },
+          { page: 4, icon: '😢', text: '"Grandpa, are you going away?" Tears began to fall from Koron\'s eyes. Grandpa Tree spoke slowly. "I won\'t go. Even if the leaves fall, my roots are here." "Roots?" ' },
+          { page: 5, icon: '🌱', text: '"Under the ground, I have my roots. You can\'t see them, but they\'re always here," Grandpa Tree continued. "Even if the leaves fall, even if the branches look lonely, the roots don\'t change." "So you won\'t disappear, Grandpa?" "Tomorrow, the day after, I\'ll always be here." ' },
+          { page: 6, icon: '🤗', text: 'Koron hugged Grandpa Tree\'s trunk tightly. "I\'m so glad..." On that cold winter day, Grandpa Tree felt warm and sturdy. "My shape might change sometimes. But my love for you, Koron, will never change." Koron wiped away tears and nodded.' },
+          { page: 7, icon: '🌸', text: 'The long winter passed, and spring came. A little bird named Pii flew over and sang. "Look, look!" On Grandpa Tree\'s branches, small green buds were sprouting. "Grandpa! Buds are sprouting!" ' },
+          { page: 8, icon: '🌳', text: '"See? I told you," Grandpa Tree\'s voice was energetic again. Shapes change. But connections never disappear. Love stays forever, just like roots. "Grandpa, let\'s play again tomorrow!" "Yes, I\'ll be here tomorrow too." ' }
+        ]
+      },
+      
+      // ===== 古典童話シリーズ第1作：てぶくろを買いに =====
+      tebukuro_wo_kai_ni: {
+        character: 'kogitsune',
+        titles: { ja: 'てぶくろを買いに', en: 'Buying Gloves' },
+        ttsReady: true, // 読み聞かせ準備完了
+        ja: [
+          { page: 1, icon: '🦊', text: '寒い寒い冬の夜でした。\n子狐はお母さん狐といっしょに、あなぐらの中にいました。\n「お母さん、手が冷たいよ」\n子狐の小さな手は、雪遊びをしたので冷たくなっていました。\n「あったかい手ぶくろを買ってあげようね」' },
+          { page: 2, icon: '🦊', text: 'お母さん狐は子狐の片手を、人間の手に変えてあげました。\n「この手を出して、『てぶくろをください』と言うんだよ」\n「お母さんは来ないの？」\n「人間はこわいの。でも、おまえなら大丈夫」\nお母さん狐は子狐をぎゅっと抱きしめました。' },
+          { page: 3, icon: '🦊', text: '子狐は雪の中を歩いて、人間の町にやってきました。\nあかりがともった窓がならんでいます。\n「わあ、まぶしい......」\n子狐は少しこわくなりました。\nでも、冷たい手を思い出して、勇気を出しました。' },
+          { page: 4, icon: '🦊', text: '帽子屋さんを見つけました。\n子狐は戸のすき間から、そっと手を出しました。\nでもドキドキして、まちがえて狐の手を出してしまいました。\n「て、てぶくろをください」\n声がふるえていました。' },
+          { page: 5, icon: '🦊', text: '帽子屋のおじさんは、その手を見ました。\n「おや、狐の手だね」\n子狐はびっくりしました。ばれてしまった！\nでもおじさんはにっこりわらいました。\n「寒いだろう。ちょっと待っておいで」' },
+          { page: 6, icon: '🦊', text: 'おじさんは、あたたかそうな毛糸のてぶくろを持ってきました。\n「これでいいかい？」\n子狐はお金をわたして、てぶくろを受け取りました。\n「ありがとうございます！」\nおじさんは手をふって見送ってくれました。' },
+          { page: 7, icon: '🦊', text: '子狐は走ってお母さんのところに帰りました。\n「お母さん！　てぶくろ買えたよ！」\n「まあ、よくできたね」\n「あのね、まちがえて狐の手を出しちゃったの。でもおじさん、優しかったよ」\nお母さん狐はおどろいた顔をしました。' },
+          { page: 8, icon: '🦊', text: '「人間って、ほんとうにいいものかしら......」\nお母さん狐は夜空を見上げてつぶやきました。\n子狐はあたたかいてぶくろをはめて、にっこりわらいました。\n知らないものは、こわい。\nでも、出会ってみたら、優しいこともある。\n雪の夜に、あったかいてぶくろと、あったかい気持ち。' }
+        ],
+        en: [
+          { page: 1, icon: '🦊', text: 'It was a cold, cold winter night.\nThe little fox was in the den with Mother Fox.\n"Mommy, my hands are cold."\nThe little fox\'s paws were freezing from playing in the snow.\n"I\'ll get you some warm mittens," said Mother Fox.' },
+          { page: 2, icon: '🦊', text: 'Mother Fox changed one of the little fox\'s paws into a human hand.\n"Hold out this hand and say, \'Mittens, please.\'"\n"Aren\'t you coming with me, Mommy?"\n"Humans are scary. But you\'ll be fine."\nMother Fox hugged the little fox tightly.' },
+          { page: 3, icon: '🦊', text: 'The little fox walked through the snow to the human town.\nWindows glowed with warm light.\n"Wow, it\'s so bright..."\nThe little fox felt a little scared.\nBut remembering his cold paws, he gathered his courage.' },
+          { page: 4, icon: '🦊', text: 'He found the hat shop.\nThe little fox held out his paw through a crack in the door.\nBut he was so nervous, he held out his fox paw by mistake!\n"M-mittens, please."\nHis voice was trembling.' },
+          { page: 5, icon: '🦊', text: 'The shopkeeper looked at the paw.\n"Oh my, a fox\'s paw."\nThe little fox was shocked. He\'d been found out!\nBut the shopkeeper just smiled warmly.\n"You must be cold. Wait just a moment."' },
+          { page: 6, icon: '🦊', text: 'The shopkeeper brought out warm, woolly mittens.\n"Will these do?"\nThe little fox handed over the money and received the mittens.\n"Thank you so much!"\nThe shopkeeper waved goodbye.' },
+          { page: 7, icon: '🦊', text: 'The little fox ran all the way back to Mother Fox.\n"Mommy! I bought the mittens!"\n"Oh, well done!"\n"Guess what? I held out my fox paw by mistake. But the shopkeeper was so kind!"\nMother Fox looked surprised.' },
+          { page: 8, icon: '🦊', text: '"Are humans really that good...?"\nMother Fox whispered, gazing up at the night sky.\nThe little fox put on his warm mittens and smiled happily.\nWhat we don\'t know can be scary.\nBut sometimes, when we meet them, they turn out to be kind.\nOn that snowy night, warm mittens and a warm heart.' }
+        ]
+      },
+      
+      // ===== 古典童話シリーズ（海外）第1作：幸福の王子 =====
+      koufuku_no_ouji: {
+        character: 'tsubame',
+        titles: { ja: '幸福の王子', en: 'The Happy Prince' },
+        ttsReady: true, // TTS音声生成完了
+        ja: [
+          { page: 1, icon: '👑', text: '町の広場に「幸福の王子」の像が立っていました。\n金色に輝く体、サファイアの目、剣には大きなルビー。\nみんなは「なんてきれいなんだろう」と見上げました。\nでも王子は毎日、町を見おろして泣いていました。\n「あの子はおなかをすかせている。あの人は寒そうだ......」' },
+          { page: 2, icon: '🐦', text: 'ある夜、ツバメが飛んできて、王子の足もとで休みました。\n「あれ？　雨かな」\n見上げると、王子の目から涙がこぼれていました。\n「どうしたの？」\n「町に悲しい人がたくさんいるのに、ぼくは動くことができないんだ」' },
+          { page: 3, icon: '💎', text: '「ツバメさん、お願いがあるんだ」\n「なあに？」\n「ぼくの剣のルビーを抜いて、あの寒そうなお母さんに届けてくれないかな」\nツバメは迷いながらもうなずきました。\n「わかった、届けてくるね」' },
+          { page: 4, icon: '✨', text: 'ツバメはルビーをくわえて飛びました。\n寒そうなお母さんのところに着くと、そっと窓辺に置きました。\n「まあ、どこからルビーが！」\nお母さんの顔がぱあっと明るくなりました。\nツバメは嬉しくなって、王子のところに帰りました。' },
+          { page: 5, icon: '🌟', text: 'それから何日も何日も、ツバメは王子のお使いをしました。\nサファイアの目は、夢を見る絵描きのもとへ。\n金色の羽は、寒さにふるえる子どものもとへ。\n王子はどんどんみすぼらしくなっていきました。\nでも王子は笑っていました。「みんなが笑顔になるなら、嬉しいよ」' },
+          { page: 6, icon: '❄️', text: '冬が近くなりました。\n「ツバメさん、もうあたたかい国へ行きなさい」\n「いやだよ。王子といっしょにいる」\nツバメは王子のほほにキスをしました。\nその時、王子の鉛の心臓から何かが溢れる気がしました。' },
+          { page: 7, icon: '🌸', text: 'やがて春がきました。\n町の人たちは、みすぼらしくなった王子の像を見て言いました。\n「ボロボロじゃないか」\nでも町に暮らす人たちは、知っていました。\n王子が自分たちを助けてくれたことを。' },
+          { page: 8, icon: '☁️', text: '空の神さまは、町を見おろしていました。\n「この町で一番美しいものを持ってきなさい」\n天使が持ってきたのは、王子の心臓とツバメでした。\n持てるものをぜんぶあげた心。それが一番美しいもの。\nあげると減る。でも本当は、増えるんだ。\n王子とツバメは、空の国でいつまでもいっしょでした。' }
+        ],
+        en: [
+          { page: 1, icon: '👑', text: 'In the town square stood a statue called \'The Happy Prince.\'\nHis body shone gold, his eyes were sapphires, and a great ruby gleamed on his sword.\nEveryone looked up and said, \'How beautiful!\'\nBut the Prince looked down at the town and cried every day.\n\'That child is hungry. That person looks so cold...\'' },
+          { page: 2, icon: '🐦', text: 'One night, a Swallow flew down and rested at the Prince\'s feet.\n\'Is it raining?\'\nLooking up, he saw tears falling from the Prince\'s eyes.\n\'What\'s wrong?\'\n\'There are so many sad people in the town, but I cannot move.\'' },
+          { page: 3, icon: '💎', text: '\'Swallow, I have a favor to ask.\'\n\'What is it?\'\n\'Would you take the ruby from my sword and bring it to that cold mother?\'\nThe Swallow hesitated, but nodded.\n\'Alright, I\'ll deliver it.\'' },
+          { page: 4, icon: '✨', text: 'The Swallow flew with the ruby in his beak.\nWhen he reached the cold mother, he gently placed it on her windowsill.\n\'Oh my! Where did this ruby come from?\'\nHer face lit up with joy.\nThe Swallow felt happy and flew back to the Prince.' },
+          { page: 5, icon: '🌟', text: 'Day after day, the Swallow carried out the Prince\'s wishes.\nThe sapphire eyes went to a dreaming artist.\nThe golden feathers went to children shivering in the cold.\nThe Prince became more and more shabby.\nBut he smiled. \'If everyone is happy, then I\'m happy too.\'' },
+          { page: 6, icon: '❄️', text: 'Winter was coming.\n\'Swallow, you must fly to a warm country now.\'\n\'No. I want to stay with you, Prince.\'\nThe Swallow kissed the Prince\'s cheek.\nAt that moment, something seemed to overflow from the Prince\'s lead heart.' },
+          { page: 7, icon: '🌸', text: 'Spring came at last.\nThe townspeople looked at the shabby statue and said, \'It\'s all worn out.\'\nBut the people who lived in the town knew.\nThey knew the Prince had helped them.' },
+          { page: 8, icon: '☁️', text: 'The God of Heaven looked down at the town.\n\'Bring me the two most beautiful things in the town.\'\nThe angel brought the Prince\'s heart and the Swallow.\nA heart that gave everything it had. That was the most beautiful thing.\nWhen you give, you might think you lose. But really, you gain.\nThe Prince and the Swallow stayed together in heaven forever.' }
+        ]
+      },
+      
+      // ===== 古典童話シリーズ（日本）第2作：ごんぎつね =====
+      gongitsune: {
+        character: 'gon',
+        titles: { ja: 'ごんぎつね', en: 'Gon, the Little Fox' },
+        ttsReady: true, // TTS音声生成完了
+        ja: [
+          { page: 1, icon: '🦊', text: '山の奥に、ごんという名前の小さな狐がいました。\nごんはひとりぼっちで暮らしていました。\n寂しくて、時々村にいたずらをしに行きます。\n畑の芋を抜いたり、干してある魚を取ったり。\n「へへん、今日もいたずら成功！」' },
+          { page: 2, icon: '🐟', text: 'ある日、ごんは川で兵十がうなぎを捕っているのを見ました。\n「あのうなぎ、取っちゃおう」\nごんはこっそりうなぎを逃がしてしまいました。\nでも次の日、ごんは知りました。\n兵十のお母さんが病気で、うなぎを食べさせてあげたかったことを。' },
+          { page: 3, icon: '😢', text: '「そうだったんだ......」\nごんは胸がぎゅっと痛くなりました。\n「ぼくのせいだ。ぼくがうなぎを逃がしたから」\nそれから間もなく、兵十のお母さんは亡くなりました。\nごんはひとりで泣きました。' },
+          { page: 4, icon: '🌰', text: '「何かしなくちゃ」\nごんは毎日、山で栗を拾いました。\nそして夜、こっそり兵十の家に届けました。\n松茸を見つけたら、それも届けました。\n「ぼくの気持ち、届くといいな」' },
+          { page: 5, icon: '🤔', text: '兵十は不思議に思いました。\n「誰がこんなにたくさん......？」\n毎朝、家の前に栗や松茸が置いてあるのです。\n「神様のおめぐみかな」\nごんはそれを聞いて、ちょっと悲しくなりました。' },
+          { page: 6, icon: '🏠', text: 'ある朝、ごんはまた栗を届けに行きました。\nすると、兵十が起きていました。\n「あっ、狐！」\n兵十はびっくりして、ごんを見つめました。\nごんは逃げずに、そこに立っていました。' },
+          { page: 7, icon: '💙', text: '「おまえが......栗を届けてくれてたのか？」\nごんは小さくうなずきました。\n「ごめんね。うなぎ、逃がしちゃったの。だから......」\n兵十の目から涙がこぼれました。\n「そうだったのか。ありがとう、ごん」' },
+          { page: 8, icon: '🤝', text: 'ごんは初めて「ありがとう」をもらいました。\n胸があったかくなりました。\n気持ちは言わないと、伝わらない。\nでも、伝えたら届くんだ。\nそれから、ごんと兵十は友達になりました。\nごんはもう、ひとりぼっちじゃなくなったのです。' }
+        ],
+        en: [
+          { page: 1, icon: '🦊', text: 'Deep in the mountains lived a small fox named Gon.\nGon lived all alone.\nFeeling lonely, he sometimes went to the village to play tricks.\nHe would pull up potatoes or steal drying fish.\n\'Hehe, another successful prank!\'' },
+          { page: 2, icon: '🐟', text: 'One day, Gon saw Hyoju catching eels in the river.\n\'I\'ll take those eels!\'\nGon secretly let the eels escape.\nBut the next day, Gon learned something.\nHyoju\'s mother was sick, and he wanted to feed her the eels.' },
+          { page: 3, icon: '😢', text: '\'Oh no...\'\nGon\'s heart ached.\n\'It\'s my fault. I let the eels go.\'\nSoon after, Hyoju\'s mother passed away.\nGon cried alone.' },
+          { page: 4, icon: '🌰', text: '\'I have to do something.\'\nEvery day, Gon gathered chestnuts in the mountains.\nAt night, he secretly left them at Hyoju\'s house.\nWhen he found mushrooms, he left those too.\n\'I hope my feelings reach him.\'' },
+          { page: 5, icon: '🤔', text: 'Hyoju was puzzled.\n\'Who could be leaving all these...?\'\nEvery morning, chestnuts and mushrooms appeared at his door.\n\'Maybe it\'s a blessing from the gods.\'\nGon felt a little sad hearing this.' },
+          { page: 6, icon: '🏠', text: 'One morning, Gon went to deliver chestnuts again.\nBut Hyoju was awake.\n\'Oh! A fox!\'\nHyoju stared at Gon in surprise.\nGon didn\'t run. He just stood there.' },
+          { page: 7, icon: '💙', text: '\'You... you\'ve been bringing the chestnuts?\'\nGon nodded slightly.\n\'I\'m sorry. I let the eels escape. So I...\'\nTears fell from Hyoju\'s eyes.\n\'I see. Thank you, Gon.\'' },
+          { page: 8, icon: '🤝', text: 'For the first time, Gon received a \'thank you.\'\nHis heart felt warm.\nFeelings don\'t reach others unless you share them.\nBut when you do, they arrive.\nFrom then on, Gon and Hyoju became friends.\nGon was no longer alone.' }
+        ]
+      },
+      
+      // ===== 古典童話シリーズ（海外）第2作：北風と太陽 =====
+      kitakaze_to_taiyou: {
+        character: 'taiyou',
+        titles: { ja: '北風と太陽', en: 'The North Wind and the Sun' },
+        ttsReady: true, // TTS音声生成完了
+        ja: [
+          { page: 1, icon: '☀️', text: '空の上に、北風と太陽がいました。\n北風は元気いっぱい。「ぼくは強いぞ！」といつも言っています。\n太陽はにこにこ。「そうだね」とやさしく笑っています。\nある日、北風が言いました。\n「ねえ太陽、どっちが強いか勝負しようよ！」' },
+          { page: 2, icon: '🧥', text: '下を見ると、旅人がマントを着て歩いています。\n「あの人のマントを脱がせたほうが勝ち！」\n北風はうきうきしました。\n「かんたんだよ、見ててね！」\n太陽は「どうぞ」とうなずきました。' },
+          { page: 3, icon: '💨', text: '北風は大きく息を吸って、おもいっきり吹きました。\nビュウウウウ！\n旅人のマントがばたばたとはためきます。\n「もっともっと！」\n北風はさらに強く吹きました。' },
+          { page: 4, icon: '❄️', text: 'でも旅人は、マントをぎゅっと押さえました。\n「寒い寒い！　飛ばされないようにしなくちゃ」\n北風が吹けば吹くほど、旅人はマントを離しません。\n「あれ？　おかしいな......」\n北風はつかれて止まりました。' },
+          { page: 5, icon: '☀️', text: '「じゃあ、次はわたしね」\n太陽はにっこりわらって、あたたかい光を降りそそぎました。\nぽかぽか、ぽかぽか。\n旅人は歩きながら言いました。\n「あれ、なんだかあったかくなってきたな」' },
+          { page: 6, icon: '🌞', text: '太陽はもっとあたたかく照らしました。\n「ああ、あったかい。気持ちいいなあ」\n旅人はマントのボタンを外しました。\nそして、とうとうマントを脱いで言いました。\n「ふう、すっきりした！」' },
+          { page: 7, icon: '🤝', text: '北風はびっくりしました。\n「すごいね、太陽。どうやったの？」\n「無理やりじゃなくて、あたたかくしただけだよ」\n北風はしばらく考えて、言いました。\n「そっか......ぼくも強いだけじゃだめなんだね」' },
+          { page: 8, icon: '🌈', text: '太陽はやさしく言いました。\n「北風の風も大切だよ。暑い日には気持ちいいもの」\n「ほんとう？」\n「やり方がちがうだけ。どっちも大切なんだ」\n無理やりよりも、あたたかく。でも、一生懸命も大事。\n北風と太陽は、それから仲良しになりました。' }
+        ],
+        en: [
+          { page: 1, icon: '☀️', text: 'Up in the sky lived the North Wind and the Sun.\nThe North Wind was full of energy. \'I\'m so strong!\' he always said.\nThe Sun just smiled warmly. \'Yes, you are,\' she said kindly.\nOne day, the North Wind said,\n\'Hey Sun, let\'s have a contest to see who\'s stronger!\'' },
+          { page: 2, icon: '🧥', text: 'Looking down, they saw a traveler walking with a cloak.\n\'Whoever makes him take off his cloak wins!\'\nThe North Wind was excited.\n\'Easy! Just watch me!\'\nThe Sun nodded. \'Go ahead.\'' },
+          { page: 3, icon: '💨', text: 'The North Wind took a deep breath and blew with all his might.\nWhoooosh!\nThe traveler\'s cloak flapped wildly.\n\'More! More!\'\nThe North Wind blew even harder.' },
+          { page: 4, icon: '❄️', text: 'But the traveler held his cloak tight.\n\'So cold! I must hold on tight!\'\nThe harder the North Wind blew, the tighter the traveler held his cloak.\n\'Huh? That\'s strange...\'\nThe North Wind got tired and stopped.' },
+          { page: 5, icon: '☀️', text: '\'Now it\'s my turn,\' said the Sun.\nShe smiled and sent down warm, gentle rays.\nWarm and cozy, warm and cozy.\nThe traveler said as he walked,\n\'Oh, it\'s getting warmer.\'' },
+          { page: 6, icon: '🌞', text: 'The Sun shone even warmer.\n\'Ahh, so warm. This feels nice.\'\nThe traveler unbuttoned his cloak.\nThen finally, he took it off and said,\n\'Phew, that feels better!\'' },
+          { page: 7, icon: '🤝', text: 'The North Wind was amazed.\n\'Wow, Sun! How did you do that?\'\n\'I didn\'t force him. I just gave him warmth.\'\nThe North Wind thought for a moment and said,\n\'I see... being strong isn\'t everything.\'' },
+          { page: 8, icon: '🌈', text: 'The Sun said kindly,\n\'Your wind is important too. It feels nice on hot days.\'\n\'Really?\'\n\'We just have different ways. Both are important.\'\nGentleness works better than force. But trying hard matters too.\nThe North Wind and the Sun became good friends after that.' }
+        ]
+      },
+      
+      // ===== 古典童話シリーズ（日本）第3作：かさじぞう =====
+      kasajizou: {
+        character: 'ojiisan',
+        titles: { ja: 'かさじぞう', en: 'The Straw Hat Jizo' },
+        ttsReady: true, // TTS音声生成完了
+        ja: [
+          { page: 1, icon: '👴', text: 'むかしむかし、山のふもとに優しいおじいさんとおばあさんが暮らしていました。\n二人はとても貧しかったけれど、いつも仲良しでした。\n大晦日の朝、おじいさんは言いました。\n「今日は町で笠を売って、お正月のおもちを買ってこよう」\n「気をつけてね、おじいさん」' },
+          { page: 2, icon: '❄️', text: 'おじいさんは五つの笠を持って、雪の中を歩いていきました。\n「笠はいらんかね、笠はいらんかね」\nでも誰も買ってくれません。\n日が暮れて、雪はどんどん降ってきました。\n「売れなかったのう......」' },
+          { page: 3, icon: '🗿', text: '帰り道、おじいさんは六つのお地蔵様を見つけました。\nお地蔵様たちは雪をかぶって、とても寒そうです。\n「おお、これはかわいそうに」\nおじいさんは持っていた笠をお地蔵様にかぶせてあげました。\n「これで少しはあったかいじゃろう」' },
+          { page: 4, icon: '🧣', text: 'でも笠は五つ。お地蔵様は六つ。\n一人だけ笠がありません。\n「困ったのう......」\nおじいさんは自分の手ぬぐいを取って、最後のお地蔵様の頭に巻いてあげました。\n「これでよし。みんなあったかくなったのう」' },
+          { page: 5, icon: '🏠', text: '家に帰ると、おばあさんが待っていました。\n「おじいさん、笠は売れたかね？」\n「売れなかったんじゃ。それどころか、お地蔵様にあげてきてしまったんじゃよ」\nおばあさんはにっこりわらいました。\n「まあ、それはいいことをしましたね。お地蔵様もきっと喜んでおられるわ」' },
+          { page: 6, icon: '🍵', text: 'その夜、二人はおもちがなくても、あったかいお茶を飲んで過ごしました。\n「おもちはなくても、二人でいればあったかいのう」\n「そうですね、おじいさん」\n夜が更けて、雪はしんしんと降り続けました。\n二人は静かに眠りにつきました。' },
+          { page: 7, icon: '🎁', text: '元日の朝、外から不思議な音が聞こえてきました。\nずっしん、ずっしん。\n「なんの音じゃろう？」\n戸を開けると、そこにはたくさんの宝物が置いてありました。\nおもち、お米、野菜、きれいな着物......' },
+          { page: 8, icon: '🙏', text: '遠くに、笠をかぶったお地蔵様たちが帰っていくのが見えました。\n「ありがとうございます、お地蔵様！」\n二人は手を合わせました。\nお礼がほしくてやったわけじゃない。でも、優しさは巡り巡って返ってくる。\n支える人が、支えられる。\nおじいさんとおばあさんは、あったかいお正月を迎えました。' }
+        ],
+        en: [
+          { page: 1, icon: '👴', text: 'Long, long ago, a kind old man and old woman lived at the foot of a mountain.\nThey were very poor, but always happy together.\nOn New Year\'s Eve morning, the old man said,\n\'Today I\'ll sell straw hats in town and buy rice cakes for New Year\'s.\'\n\'Take care, dear,\' said the old woman.' },
+          { page: 2, icon: '❄️', text: 'The old man carried five straw hats and walked through the snow.\n\'Straw hats for sale! Straw hats for sale!\'\nBut no one would buy them.\nAs the sun set, the snow fell harder and harder.\n\'I couldn\'t sell any...\'' },
+          { page: 3, icon: '🗿', text: 'On his way home, the old man found six Jizo statues.\nThe Jizo were covered in snow, looking very cold.\n\'Oh, you poor things.\'\nThe old man put his straw hats on the Jizo statues.\n\'This should keep you a little warmer.\'' },
+          { page: 4, icon: '🧣', text: 'But there were five hats and six Jizo.\nOne Jizo had no hat.\n\'Oh dear...\'\nThe old man took off his own cloth and wrapped it around the last Jizo\'s head.\n\'There we go. Now everyone is warm.\'' },
+          { page: 5, icon: '🏠', text: 'When he got home, the old woman was waiting.\n\'Did you sell the hats, dear?\'\n\'I couldn\'t sell them. In fact, I gave them all to the Jizo statues.\'\nThe old woman smiled warmly.\n\'Oh, what a kind thing to do. The Jizo must be so happy.\'' },
+          { page: 6, icon: '🍵', text: 'That night, even without rice cakes, they drank warm tea together.\n\'Even without rice cakes, being together keeps us warm.\'\n\'Yes, dear.\'\nThe night grew late, and the snow kept falling quietly.\nThey fell asleep peacefully.' },
+          { page: 7, icon: '🎁', text: 'On New Year\'s morning, they heard a strange sound outside.\nThump, thump, thump.\n\'What could that be?\'\nWhen they opened the door, there were many treasures.\nRice cakes, rice, vegetables, beautiful clothes...' },
+          { page: 8, icon: '🙏', text: 'In the distance, they could see the Jizo statues wearing hats, walking away.\n\'Thank you, Jizo-sama!\'\nThey put their hands together in thanks.\nThey didn\'t do it for a reward. But kindness comes back around.\nThose who support others are supported in return.\nThe old man and woman had a warm, happy New Year.' }
+        ]
+      },
+      
+      // ===== オリジナル作品第6作：ほしのたからもの =====
+      hoshi_no_takaramono: {
+        character: 'hoshi',
+        titles: { ja: 'ほしのたからもの', en: 'Hoshi\'s Treasure' },
+        ttsReady: true, // TTS音声生成完了
+        ja: [
+          { page: 1, icon: '⭐', text: '夜空の遠くに、小さな星の子がいました。\n名前は、ホシ。\nまわりの星たちはキラキラ輝いているのに、ホシの光はとても弱くて、夜空の隅っこでぽつんとしていました。\n「どうしたら、みんなみたいに輝けるのかな...」\nホシはいつも、そう思っていました。' },
+          { page: 2, icon: '🗺️', text: 'ある夜、おばあちゃん星がホシに言いました。\n「ホシや、この地図をごらん。伝説の宝があるんだよ。見つけたものは、きっと輝けるようになるって言われているんだ」\nホシの目がキラッと光りました。\n「ほんとう？　ぼく、探しに行ってみる！」\n「いってらっしゃい。大丈夫、おまえの光は、おまえが思うよりずっと------」\nでもホシは、最後まで聞かずに飛び出していきました。' },
+          { page: 3, icon: '🌲', text: 'ホシは夜空からふわりと降りて、暗い森にやってきました。\n「こんばんは。伝説の宝を探してるんだけど、知らない？」\n土の中からモグおじさんが顔を出しました。\n「宝かい？　宝はね、土の中にあるんじゃよ。キラキラした石がいっぱいあるからのう」\nホシは土を掘ってみました。\nでも、石はキラキラしていたけれど、ホシが探している宝とは違う気がしました。\n「ありがとう、モグおじさん。もう少し探してみるね」' },
+          { page: 4, icon: '🌊', text: '次にホシは、キラキラ光る川にやってきました。\n「ねえねえ、伝説の宝ってどこにあるの？」\n魚のサラちゃんが元気よく飛び跳ねました。\n「宝？　そんなの、水の中に決まってるでしょ！　あたしのうろこだって宝石みたいにキラキラなんだから！」\nホシは川の中をのぞいてみました。\nサラちゃんのうろこはたしかにきれい。でも、やっぱり探している宝とは違う気がしました。\n「ありがとう、サラちゃん。もうちょっとがんばってみるね」' },
+          { page: 5, icon: '☁️', text: 'ホシは高い山を登って、雲のフワリに会いました。\n「伝説の宝、どこにあるか知ってる？」\nフワリはふわふわ揺れながら言いました。\n「宝は...どこだろうね。空の向こうかもしれないし、もっと近くかもしれない。大事なものって、意外と見えないところにあるものだよ」\n「見えないところ...？」\nホシは首をかしげました。\n「地図の最後のところに行ってみたら？　何かわかるかもしれないよ」' },
+          { page: 6, icon: '🌙', text: '山を降りたホシは、とうとう地図の最後の場所------静かな湖にたどり着きました。\n「宝は...どこ？」\nまわりを見ても、何もありません。\nホシはがっかりして、湖をのぞきこみました。\nすると------\n水面に、やわらかい光が映っていました。\n「あれ...？　これ、ぼくの光...？」' },
+          { page: 7, icon: '✨', text: 'ホシは目をまるくしました。\n湖に映った自分の光は、思っていたよりもずっときれいで、あたたかそうでした。\n「ぼく、こんなふうに光ってたの...？」\nモグおじさんの暗い穴を照らしたのは、ホシの光でした。\nサラちゃんがキラキラ泳げたのは、ホシの光が川を照らしていたから。\nフワリがやさしく見えたのも、ホシの光が雲を照らしていたから。\n「宝ものは...ぼくの中にあったんだ」' },
+          { page: 8, icon: '🌟', text: 'ホシは夜空に帰ってきました。\n「おかえり、ホシ。宝ものは見つかったかい？」\nおばあちゃん星がにっこり聞きました。\n「うん！　ぼくの光だったよ。ずっと持ってたのに、気づいてなかったの」\nおばあちゃん星は目を細めました。\n「そうだよ。おまえの光は、おまえが思うよりずっと、あたたかいんだ」\nその夜、ホシはいつもと同じ夜空の隅っこにいました。\nでも、もう「弱い光」とは思いませんでした。\nだって、自分の光を知っている星は、どこにいたって輝けるのですから。' }
+        ],
+        en: [
+          { page: 1, icon: '⭐', text: 'Far away in the night sky, there was a little star child.\nHis name was Hoshi.\nWhile all the other stars sparkled brightly, Hoshi\'s light was very faint, and he sat alone in a corner of the sky.\n\'How can I shine like everyone else...?\'\nHoshi always wondered.' },
+          { page: 2, icon: '🗺️', text: 'One night, Grandma Star said to Hoshi,\n\'Hoshi dear, look at this map. There\'s a legendary treasure. They say whoever finds it will shine brightly.\'\nHoshi\'s eyes sparkled.\n\'Really? I\'ll go look for it!\'\n\'Take care. Your light is much more than you think—\'\nBut Hoshi flew off before hearing the rest.' },
+          { page: 3, icon: '🌲', text: 'Hoshi floated down from the sky and came to a dark forest.\n\'Hello. I\'m looking for the legendary treasure. Do you know where it is?\'\nMr. Mole poked his head out from the ground.\n\'Treasure? Treasure is in the ground, you know. There are lots of sparkly stones down here.\'\nHoshi dug in the soil.\nThe stones were sparkly, but they didn\'t feel like the treasure he was looking for.\n\'Thank you, Mr. Mole. I\'ll keep searching.\'' },
+          { page: 4, icon: '🌊', text: 'Next, Hoshi came to a sparkling river.\n\'Hey, do you know where the legendary treasure is?\'\nSara the fish jumped energetically.\n\'Treasure? It\'s obviously in the water! My scales sparkle like jewels, you know!\'\nHoshi peered into the river.\nSara\'s scales were certainly beautiful. But it still didn\'t feel like the treasure he was looking for.\n\'Thank you, Sara. I\'ll try a little more.\'' },
+          { page: 5, icon: '☁️', text: 'Hoshi climbed a tall mountain and met Fuwari the cloud.\n\'Do you know where the legendary treasure is?\'\nFuwari swayed gently and said,\n\'Treasure... I wonder where it is. Maybe beyond the sky, or maybe closer than you think. Important things are often in places you can\'t see.\'\n\'Places I can\'t see...?\'\nHoshi tilted his head.\n\'Why don\'t you go to the last place on the map? You might find something there.\'' },
+          { page: 6, icon: '🌙', text: 'Coming down the mountain, Hoshi finally reached the last place on the map—a quiet lake.\n\'Where\'s the treasure...?\'\nHe looked around, but there was nothing.\nDisappointed, Hoshi peered into the lake.\nThen—\nA soft light was reflected on the water\'s surface.\n\'Huh...? Is that... my light...?\'' },
+          { page: 7, icon: '✨', text: 'Hoshi\'s eyes went wide.\nHis light reflected in the lake was much more beautiful and warm than he had thought.\n\'I was glowing like this...?\'\nIt was Hoshi\'s light that lit up Mr. Mole\'s dark hole.\nSara could swim sparkling because Hoshi\'s light was shining on the river.\nFuwari looked gentle because Hoshi\'s light was shining on the clouds.\n\'The treasure... was inside me all along.\'' },
+          { page: 8, icon: '🌟', text: 'Hoshi returned to the night sky.\n\'Welcome back, Hoshi. Did you find the treasure?\'\nGrandma Star asked with a smile.\n\'Yes! It was my light. I had it all along, but I didn\'t notice.\'\nGrandma Star\'s eyes softened.\n\'That\'s right. Your light is much warmer than you think.\'\nThat night, Hoshi was in the same corner of the sky as always.\nBut he no longer thought of it as a \'weak light.\'\nBecause a star who knows its own light can shine anywhere.' }
+        ]
+      }
+    };
+
+    // キャラクターデータ
+    const characterData = {
+      runo: {
+        icon: '🌟',
+        names: { ja: 'ルノ', en: 'Runo' },
+        prompts: {
+          ja: 'おはなし きいてくれて<br>ありがとう。<br><br>きみは どんなことを<br>かんじた？',
+          en: 'Thank you for<br>listening to my story.<br><br>How did it make<br>you feel?'
+        },
+        statuses: { ja: 'おはなし できるよ', en: 'Ready to talk' }
+      },
+      pirika: {
+        icon: '🦔',
+        names: { ja: 'ピリカ', en: 'Pirika' },
+        prompts: {
+          ja: 'おはなし きいてくれて<br>ありがとう。<br><br>きみは なにかで<br>まよったこと ある？',
+          en: 'Thank you for<br>listening to my story.<br><br>Have you ever felt<br>lost about something?'
+        },
+        statuses: { ja: 'おはなし できるよ', en: 'Ready to talk' }
+      },
+      miru: {
+        icon: '🐿️',
+        names: { ja: 'ミル', en: 'Miru' },
+        prompts: {
+          ja: 'おはなし きいてくれて<br>ありがとう！<br><br>きみは きょう だれかに<br>「ありがとう」って<br>いえたかな？',
+          en: 'Thank you for<br>listening to my story!<br><br>Did you say<br>"thank you" to<br>someone today?'
+        },
+        statuses: { ja: 'おはなし できるよ', en: 'Ready to talk' }
+      },
+      rin: {
+        icon: '🔔',
+        names: { ja: 'リン', en: 'Rin' },
+        prompts: {
+          ja: 'おはなし きいてくれて<br>ありがとう。<br><br>きみにも とくべつな<br>「おと」が あるんだよ。<br>きいてみたいな。',
+          en: 'Thank you for<br>listening to my story.<br><br>You have your own<br>special "sound" too.<br>I\'d love to hear it.'
+        },
+        statuses: { ja: 'おはなし できるよ', en: 'Ready to talk' }
+      },
+      koron: {
+        icon: '🌳',
+        names: { ja: 'コロン', en: 'Koron' },
+        prompts: {
+          ja: 'おはなし きいてくれて<br>ありがとう。<br><br>きみにも だいすきな<br>ひと いる？',
+          en: 'Thank you for<br>listening to my story.<br><br>Do you have someone<br>you love too?'
+        },
+        statuses: { ja: 'おはなし できるよ', en: 'Ready to talk' }
+      },
+      kogitsune: {
+        icon: '🦊',
+        names: { ja: '子狐', en: 'Kogitsune' },
+        prompts: {
+          ja: 'おはなし きいてくれて<br>ありがとう。<br><br>きみも はじめての<br>おつかい したこと ある？',
+          en: 'Thank you for<br>listening to my story.<br><br>Have you ever done<br>your first errand?'
+        },
+        statuses: { ja: 'おはなし できるよ', en: 'Ready to talk' }
+      },
+      tsubame: {
+        icon: '🐦',
+        names: { ja: 'ツバメ', en: 'Tsubame' },
+        prompts: {
+          ja: 'おはなし きいてくれて<br>ありがとう。<br><br>きみも だれかのために<br>なにか したこと ある？',
+          en: 'Thank you for<br>listening to my story.<br><br>Have you ever done<br>something for someone?'
+        },
+        statuses: { ja: 'おはなし できるよ', en: 'Ready to talk' }
+      },
+      gon: {
+        icon: '🦊',
+        names: { ja: 'ごん', en: 'Gon' },
+        prompts: {
+          ja: 'おはなし きいてくれて<br>ありがとう。<br><br>きみも いいたいことが<br>いえなかったこと ある？',
+          en: 'Thank you for<br>listening to my story.<br><br>Have you ever had<br>something you couldn\'t say?'
+        },
+        statuses: { ja: 'おはなし できるよ', en: 'Ready to talk' }
+      },
+      taiyou: {
+        icon: '☀️',
+        names: { ja: '太陽', en: 'Taiyou' },
+        prompts: {
+          ja: 'おはなし きいてくれて<br>ありがとう。<br><br>きみも やさしくしたこと<br>あるかな？',
+          en: 'Thank you for<br>listening to my story.<br><br>Have you ever been<br>gentle to someone?'
+        },
+        statuses: { ja: 'おはなし できるよ', en: 'Ready to talk' }
+      },
+      ojiisan: {
+        icon: '👴',
+        names: { ja: 'おじいさん', en: 'Ojiisan' },
+        prompts: {
+          ja: 'おはなし きいてくれて<br>ありがとう。<br><br>きみも だれかに<br>やさしくしたこと あるかのう？',
+          en: 'Thank you for<br>listening to my story.<br><br>Have you ever been<br>kind to someone?'
+        },
+        statuses: { ja: 'おはなし できるよ', en: 'Ready to talk' }
+      },
+      hoshi: {
+        icon: '⭐',
+        names: { ja: 'ホシ', en: 'Hoshi' },
+        prompts: {
+          ja: 'おはなし きいてくれて<br>ありがとう。<br><br>きみの たからもの<br>って なあに？',
+          en: 'Thank you for<br>listening to my story.<br><br>What is your<br>treasure?'
+        },
+        statuses: { ja: 'おはなし できるよ', en: 'Ready to talk' }
+      }
+    };
+
+    // ===== 挿絵データ =====
+    const illustrations = {
+      hikari_no_tane: [
+        'hikari_official/page1.png',
+        'hikari_official/page2.png',
+        'hikari_official/page3.png',
+        'hikari_official/page4.png',
+        'hikari_official/page5.png',
+        'hikari_official/page6.png',
+        'hikari_official/page7.png',
+        'hikari_official/page8.png'
+      ],
+      mayoimichi_compass: [
+        'pirika_official/page1.png',
+        'pirika_official/page2.png',
+        'pirika_official/page3.png',
+        'pirika_official/page4.png',
+        'pirika_official/page5.png',
+        'pirika_official/page6.png',
+        'pirika_official/page7.png',
+        'pirika_official/page8.png'
+      ],
+      arigatou_kakurenbo: [
+        'miru_official/page1.png',
+        'miru_official/page2.png',
+        'miru_official/page3.png',
+        'miru_official/page4.png',
+        'miru_official/page5.png',
+        'miru_official/page6.png',
+        'miru_official/page7.png',
+        'miru_official/page8.png'
+      ],
+      kimi_no_oto: [
+        'rin_official/page1.png',
+        'rin_official/page2.png',
+        'rin_official/page3.png',
+        'rin_official/page4.png',
+        'rin_official/page5.png',
+        'rin_official/page6.png',
+        'rin_official/page7.png',
+        'rin_official/page8.png'
+      ],
+      ashita_mo_iruyo: [
+        'koron_official/page1.png',
+        'koron_official/page2.png',
+        'koron_official/page3.png',
+        'koron_official/page4.png',
+        'koron_official/page5.png',
+        'koron_official/page6.png',
+        'koron_official/page7.png',
+        'koron_official/page8.png'
+      ],
+      tebukuro_wo_kai_ni: [
+        'kogitsune_official/page1.png',
+        'kogitsune_official/page2.png',
+        'kogitsune_official/page3.png',
+        'kogitsune_official/page4.png',
+        'kogitsune_official/page5.png',
+        'kogitsune_official/page6.png',
+        'kogitsune_official/page7.png',
+        'kogitsune_official/page8.png'
+      ],
+      koufuku_no_ouji: [
+        'tsubame_official/page1.png',
+        'tsubame_official/page2.png',
+        'tsubame_official/page3.png',
+        'tsubame_official/page4.png',
+        'tsubame_official/page5.png',
+        'tsubame_official/page6.png',
+        'tsubame_official/page7.png',
+        'tsubame_official/page8.png'
+      ],
+      gongitsune: [
+        'gon_official/page1.png',
+        'gon_official/page2.png',
+        'gon_official/page3.png',
+        'gon_official/page4.png',
+        'gon_official/page5.png',
+        'gon_official/page6.png',
+        'gon_official/page7.png',
+        'gon_official/page8.png'
+      ],
+      kitakaze_to_taiyou: [
+        'taiyou_official/page_01.png',
+        'taiyou_official/page_02.png',
+        'taiyou_official/page_03.png',
+        'taiyou_official/page_04.png',
+        'taiyou_official/page_05.png',
+        'taiyou_official/page_06.png',
+        'taiyou_official/page_07.png',
+        'taiyou_official/page_08.png'
+      ],
+      kasajizou: [
+        'ojiisan_official/page_01.png',
+        'ojiisan_official/page_02.png',
+        'ojiisan_official/page_03.png',
+        'ojiisan_official/page_04.png',
+        'ojiisan_official/page_05.png',
+        'ojiisan_official/page_06.png',
+        'ojiisan_official/page_07.png',
+        'ojiisan_official/page_08.png'
+      ],
+      hoshi_no_takaramono: [
+        'hoshi_official/page_01.png',
+        'hoshi_official/page_02.png',
+        'hoshi_official/page_03.png',
+        'hoshi_official/page_04.png',
+        'hoshi_official/page_05.png',
+        'hoshi_official/page_06.png',
+        'hoshi_official/page_07.png',
+        'hoshi_official/page_08.png'
+      ]
+    };
+
+    // ========================================
+    // 初期化
+    // ========================================
+    function init() {
+      createStars('home-stars', 30);
+      createStars('shelf-stars', 20);
+      createStars('dialogue-stars', 25);
+      
+      // ページスクロール監視
+      const container = document.getElementById('pages-container');
+      container.addEventListener('scroll', handlePageScroll);
+    }
+
+    // 星を生成
+    function createStars(containerId, count) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      
+      for (let i = 0; i < count; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.width = (Math.random() * 2 + 1) + 'px';
+        star.style.height = star.style.width;
+        star.style.animationDelay = Math.random() * 3 + 's';
+        container.appendChild(star);
+      }
+    }
+
+    // ========================================
+    // 画面遷移
+    // ========================================
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+    }
+
+    // ========================================
+    // 言語切り替え
+    // ========================================
+    function setLanguage(lang) {
+      currentLanguage = lang;
+      localStorage.setItem('yomitomo_lang', lang);
+      
+      // ボタンの状態を更新
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent.includes(lang === 'ja' ? 'にほんご' : 'English'));
+      });
+      
+      // テキストを更新
+      updateTexts();
+    }
+
+    function updateTexts() {
+      const texts = {
+        ja: {
+          welcome: 'ようこそ、ほんの せかいへ。',
+          welcomeSub: 'ふしぎな としょかん',
+          enter: 'はいる',
+          bookshelf: 'ほんだな',
+          bookshelfSub: 'よみたい ほんを えらんでね',
+          backHome: 'もどる',
+          toDialogue: 'おはなし する',
+          skipReading: 'よみきかせを スキップ',
+          endDialogue: 'おわる',
+          talkHint: 'タップして はなしてね',
+          dialogueHeader: 'おはなしの せかいへ ようこそ',
+          modalTitle: 'よみきかせ じゅんびちゅう',
+          modalText: 'よみきかせは まだ じゅんびちゅう です。<br>おはなしは できるよ！',
+          hikariTitle: 'ひかりの<br>たね',
+          hikariLabel: 'ひかりのたね',
+          compassTitle: 'まよいみちの<br>コンパス',
+          compassLabel: 'まよいみちのコンパス',
+          arigatouTitle: 'ありがとうの<br>かくれんぼ',
+          arigatouLabel: 'ありがとうのかくれんぼ',
+          otoTitle: 'きみのおとが<br>きこえるよ',
+          otoLabel: 'きみのおとがきこえるよ',
+          ashitaTitle: 'あしたも<br>いるよ',
+          ashitaLabel: 'あしたもいるよ',
+          tebukuroTitle: 'てぶくろを<br>買いに',
+          tebukuroLabel: 'てぶくろを買いに',
+          koufukuTitle: '幸福の<br>王子',
+          koufukuLabel: '幸福の王子',
+          gonTitle: 'ごんぎつね',
+          gonLabel: 'ごんぎつね',
+          taiyouTitle: '北風と<br>太陽',
+          taiyouLabel: '北風と太陽',
+          ojiisanTitle: 'かさじぞう',
+          ojiisanLabel: 'かさじぞう',
+          hoshiTitle: 'ほしの<br>たからもの',
+          hoshiLabel: 'ほしのたからもの'
+        },
+        en: {
+          welcome: 'Welcome to the world of books.',
+          welcomeSub: 'The Magical Library',
+          enter: 'Enter',
+          bookshelf: 'Bookshelf',
+          bookshelfSub: 'Choose a book to read',
+          backHome: 'Back',
+          toDialogue: 'Talk',
+          skipReading: 'Skip reading',
+          endDialogue: 'End',
+          talkHint: 'Tap to talk',
+          dialogueHeader: 'Welcome to the story world',
+          modalTitle: 'Reading not ready',
+          modalText: 'Reading aloud is still being prepared.<br>But you can talk!',
+          hikariTitle: 'The Seed<br>of Light',
+          hikariLabel: 'The Seed of Light',
+          compassTitle: 'Compass of<br>Lost Paths',
+          compassLabel: 'Compass of Lost Paths',
+          arigatouTitle: 'Hide and Seek<br>with Thank You',
+          arigatouLabel: 'Hide and Seek with Thank You',
+          otoTitle: 'I Can Hear<br>Your Sound',
+          otoLabel: 'I Can Hear Your Sound',
+          ashitaTitle: 'Tomorrow<br>is Also There',
+          ashitaLabel: 'Tomorrow is Also There',
+          tebukuroTitle: 'Buying<br>Mittens',
+          tebukuroLabel: 'Buying Mittens',
+          koufukuTitle: 'The Happy<br>Prince',
+          koufukuLabel: 'The Happy Prince',
+          gonTitle: 'Gon, the<br>Little Fox',
+          gonLabel: 'Gon, the Little Fox',
+          taiyouTitle: 'The North<br>Wind and the Sun',
+          taiyouLabel: 'The North Wind and the Sun',
+          ojiisanTitle: 'The Straw<br>Hat Jizo',
+          ojiisanLabel: 'The Straw Hat Jizo',
+          hoshiTitle: 'Hoshi\'s<br>Treasure',
+          hoshiLabel: 'Hoshi\'s Treasure'
+        }
+      };
+      
+      const t = texts[currentLanguage];
+      document.getElementById('welcome-text').textContent = t.welcome;
+      document.getElementById('welcome-sub').textContent = t.welcomeSub;
+      document.getElementById('enter-btn').textContent = t.enter;
+      document.getElementById('bookshelf-title').textContent = t.bookshelf;
+      document.getElementById('bookshelf-sub').textContent = t.bookshelfSub;
+      document.getElementById('back-home-btn').textContent = t.backHome;
+      document.getElementById('to-dialogue-btn').textContent = t.toDialogue;
+      document.getElementById('skip-reading-btn').textContent = t.skipReading;
+      document.getElementById('end-dialogue-btn').textContent = t.endDialogue;
+      document.getElementById('talk-hint').textContent = t.talkHint;
+      document.getElementById('dialogue-header-text').textContent = t.dialogueHeader;
+      document.getElementById('modal-title').textContent = t.modalTitle;
+      document.getElementById('modal-text').innerHTML = t.modalText;
+      document.getElementById('book-title-hikari').innerHTML = t.hikariTitle;
+      document.getElementById('book-label-hikari').textContent = t.hikariLabel;
+      document.getElementById('book-title-compass').innerHTML = t.compassTitle;
+      document.getElementById('book-label-compass').textContent = t.compassLabel;
+      document.getElementById('book-title-arigatou').innerHTML = t.arigatouTitle;
+      document.getElementById('book-label-arigatou').textContent = t.arigatouLabel;
+      document.getElementById('book-title-oto').innerHTML = t.otoTitle;
+      document.getElementById('book-label-oto').textContent = t.otoLabel;
+      if (document.getElementById('book-label-ashita')) {
+        document.getElementById('book-label-ashita').textContent = t.ashitaLabel;
+      }
+      if (document.getElementById('book-label-tebukuro')) {
+        document.getElementById('book-label-tebukuro').textContent = t.tebukuroLabel;
+      }
+      if (document.getElementById('book-label-koufuku')) {
+        document.getElementById('book-label-koufuku').textContent = t.koufukuLabel;
+      }
+      if (document.getElementById('book-label-gon')) {
+        document.getElementById('book-label-gon').textContent = t.gonLabel;
+      }
+      if (document.getElementById('book-label-taiyou')) {
+        document.getElementById('book-label-taiyou').textContent = t.taiyouLabel;
+      }
+      if (document.getElementById('book-label-ojiisan')) {
+        document.getElementById('book-label-ojiisan').textContent = t.ojiisanLabel;
+      }
+      if (document.getElementById('book-label-hoshi')) {
+        document.getElementById('book-label-hoshi').textContent = t.hoshiLabel;
+      }
+    }
+
+    // ========================================
+    // 本の選択
+    // ========================================
+    function selectBook(bookId) {
+      // フリーミアムチェック
+      if (typeof canAccessBook === 'function' && !canAccessBook(bookId)) {
+        showParentalGate(bookId);
+        return;
+      }
+
+      currentBook = bookId;
+      currentPage = 1;
+      
+      const book = bookData[bookId];
+      currentCharacter = book.character;
+      
+      // 本のタイトルを更新
+      document.getElementById('reading-book-title').textContent = book.titles[currentLanguage];
+      
+      // ページを生成
+      generatePages(bookId);
+      updatePageIndicator();
+      
+      // 読み聞かせが未準備の場合、モーダルを表示
+      if (!book.ttsReady) {
+        showPreparingModal();
+      }
+      
+      showScreen('reading-screen');
+      
+      // ページコンテナをリセット
+      document.getElementById('pages-container').scrollLeft = 0;
+    }
+
+    // ページを動的に生成
+    function generatePages(bookId) {
+      const container = document.getElementById('pages-container');
+      const pages = bookData[bookId][currentLanguage];
+      
+      container.innerHTML = '';
+      
+      pages.forEach((pageData) => {
+        const pageDiv = document.createElement('div');
+        pageDiv.className = 'page';
+        pageDiv.dataset.page = pageData.page;
+        pageDiv.dataset.book = bookId; // 作品IDを追加（CSSで特定の作品だけにスタイルを適用するため）
+        
+        // テキストを改行で分割してHTMLに変換
+        const textHtml = pageData.text.split('\n').join('<br>');
+        
+        // 挿絵があるかチェック
+        const illustData = illustrations[bookId];
+        const illustSrc = illustData && illustData[pageData.page - 1];
+        
+        const illustrationHtml = illustSrc 
+          ? `<img class="illustration-image" src="${illustSrc}" alt="挿絵">`
+          : `<div class="illustration-placeholder"><span class="placeholder-icon">${pageData.icon}</span></div>`;
+        
+        pageDiv.innerHTML = `
+          <div class="illustration-area">
+            <div class="illustration">
+              ${illustrationHtml}
+            </div>
+          </div>
+          <div class="text-area">
+            <p class="story-text">${textHtml}</p>
+          </div>
+        `;
+        
+        container.appendChild(pageDiv);
+      });
+      
+      totalPages = pages.length;
+    }
+
+    // ========================================
+    // 朗読画面
+    // ========================================
+    function goToBookshelf() {
+      // 朗読音声を停止
+      stopAudio();
+      // 本棚画面に戻る
+      showScreen('bookshelf-screen');
+    }
+
+    function handlePageScroll() {
+      const container = document.getElementById('pages-container');
+      const pageWidth = container.offsetWidth;
+      const scrollLeft = container.scrollLeft;
+      currentPage = Math.round(scrollLeft / pageWidth) + 1;
+      updatePageIndicator();
+    }
+
+    function updatePageIndicator() {
+      document.getElementById('page-indicator').textContent = `${currentPage} / ${totalPages}`;
+    }
+
+    function prevPage() {
+      if (currentPage > 1) {
+        // 現在の音声を停止
+        stopAudio();
+        isPlaying = false;
+        document.getElementById('play-btn').textContent = '▶';
+        
+        currentPage--;
+        scrollToPage(currentPage);
+      }
+    }
+
+    function nextPage() {
+      if (currentPage < totalPages) {
+        // 現在の音声を停止
+        stopAudio();
+        isPlaying = false;
+        document.getElementById('play-btn').textContent = '▶';
+        
+        currentPage++;
+        scrollToPage(currentPage);
+      }
+    }
+
+    function scrollToPage(page) {
+      const container = document.getElementById('pages-container');
+      const pageWidth = container.offsetWidth;
+      container.scrollTo({
+        left: (page - 1) * pageWidth,
+        behavior: 'smooth'
+      });
+      updatePageIndicator();
+    }
+
+    function togglePlay() {
+      const book = bookData[currentBook];
+      if (!book || !book.ttsReady) {
+        console.log('TTS not ready for this book');
+        return;
+      }
+      
+      isPlaying = !isPlaying;
+      const btn = document.getElementById('play-btn');
+      btn.textContent = isPlaying ? '⏸' : '▶';
+      
+      if (isPlaying) {
+        // 再生開始
+        playCurrentPage();
+      } else {
+        // 一時停止
+        if (audioElement && !audioElement.paused) {
+          audioElement.pause();
+        }
+      }
+    }
+    
+    function stopAudio() {
+      if (audioElement) {
+        audioElement.pause();
+        audioElement.currentTime = 0;
+        audioElement = null;
+      }
+      playingPage = null;
+    }
+    
+    function playCurrentPage() {
+      const book = bookData[currentBook];
+      if (!book || !book.ttsReady) {
+        console.log('TTS not ready for this book');
+        return;
+      }
+      
+      // ページが変わった場合は音声をリセット
+      if (playingPage !== null && playingPage !== currentPage) {
+        stopAudio();
+      }
+      
+      // 既に同じページの音声が読み込まれていて、一時停止中ならそのまま再生
+      if (audioElement && playingPage === currentPage && audioElement.paused) {
+        audioElement.play().catch(err => {
+          console.error('Audio play failed:', err);
+          isPlaying = false;
+          document.getElementById('play-btn').textContent = '▶';
+        });
+        return;
+      }
+      
+      // 音声ファイルのパスを生成
+      let audioPath;
+      if (currentBook === 'hikari_no_tane') {
+        // ルノ（ひかりのたね）の音声パス
+        const pageNum = String(currentPage).padStart(2, '0');
+        audioPath = `audio/${currentLanguage}/hikari_no_tane/page_${pageNum}.wav`;
+      } else if (currentBook === 'mayoimichi_compass') {
+        // ピリカ（まよいみちのコンパス）の音声パス
+        const langSuffix = currentLanguage === 'ja' ? 'ja' : 'en';
+        audioPath = `audio/${currentLanguage}/pirika_${langSuffix}/pirika_page${currentPage}_${langSuffix}.wav`;
+      } else if (currentBook === 'arigatou_kakurenbo') {
+        // ミル（ありがとうのかくれんぼ）の音声パス
+        const langSuffix = currentLanguage === 'ja' ? 'ja' : 'en';
+        audioPath = `audio/${currentLanguage}/arigatou_kakurenbo/miru_page${currentPage}_${langSuffix}.wav`;
+      } else if (currentBook === 'kimi_no_oto') {
+        // リン（きみのおとがきこえるよ）の音声パス
+        const langSuffix = currentLanguage === 'ja' ? 'ja' : 'en';
+        audioPath = `audio/${currentLanguage}/kimi_no_oto/rin_page${currentPage}_${langSuffix}.wav`;
+      } else if (currentBook === 'ashita_mo_iruyo') {
+        // コロン（あしたもいるよ）の音声パス
+        const langSuffix = currentLanguage === 'ja' ? 'ja' : 'en';
+        audioPath = `audio/${currentLanguage}/ashita_mo_iruyo/koron_page${currentPage}_${langSuffix}.wav`;
+      } else if (currentBook === 'tebukuro_wo_kai_ni') {
+        // 子狐（てぶくろを買いに）の音声パス
+        const langSuffix = currentLanguage === 'ja' ? 'ja' : 'en';
+        audioPath = `audio/${currentLanguage}/tebukuro/kogitsune_page${currentPage}_${langSuffix}.wav`;
+      } else if (currentBook === 'koufuku_no_ouji') {
+        // ツバメ（幸福の王子）の音声パス
+        const langSuffix = currentLanguage === 'ja' ? 'ja' : 'en';
+        audioPath = `audio/${currentLanguage}/koufuku_no_ouji/tsubame_page${currentPage}_${langSuffix}.wav`;
+      } else if (currentBook === 'gongitsune') {
+        // ごん（ごんぎつね）の音声パス
+        const langSuffix = currentLanguage === 'ja' ? 'ja' : 'en';
+        audioPath = `audio/${currentLanguage}/gongitsune/gon_page${currentPage}_${langSuffix}.wav`;
+      } else if (currentBook === 'kitakaze_to_taiyou') {
+        // 太陽（北風と太陽）の音声パス
+        const langSuffix = currentLanguage === 'ja' ? 'ja' : 'en';
+        audioPath = `audio/${currentLanguage}/kitakaze_to_taiyou/taiyou_page${currentPage}_${langSuffix}.wav`;
+      } else if (currentBook === 'kasajizou') {
+        // おじいさん（かさじぞう）の音声パス
+        const langSuffix = currentLanguage === 'ja' ? 'ja' : 'en';
+        audioPath = `audio/${currentLanguage}/kasajizou/ojiisan_page${currentPage}_${langSuffix}.wav`;
+      } else if (currentBook === 'hoshi_no_takaramono') {
+        // ホシ（ほしのたからもの）の音声パス
+        const langSuffix = currentLanguage === 'ja' ? 'ja' : 'en';
+        audioPath = `audio/${currentLanguage}/hoshi_no_takaramono/hoshi_page${currentPage}_${langSuffix}.wav`;
+      } else {
+        console.log('Unknown book:', currentBook);
+        return;
+      }
+      
+      console.log('Playing:', audioPath);
+      
+      // 既存の音声を停止（ページ切替時）
+      if (playingPage !== currentPage) {
+        stopAudio();
+      }
+      
+      // 音声を再生
+      audioElement = new Audio(audioPath);
+      playingPage = currentPage; // 現在再生中のページを記録
+      
+      audioElement.onended = () => {
+        console.log('Audio ended:', { isPlaying, playingPage, currentPage });
+        // 条件を緩和：playingPageが一致するか、またはnullの場合（初回再生時）
+        if (playingPage === currentPage || playingPage === null) {
+          if (currentPage < totalPages) {
+            // 次のページに進む
+            currentPage++;
+            scrollToPage(currentPage);
+            updatePageIndicator();
+            playingPage = null; // ページ切替を記録
+            
+            // スクロール完了を待ってから次を再生（600ms）
+            setTimeout(() => {
+              if (isPlaying) {
+                playCurrentPage();
+              }
+            }, 600);
+          } else {
+            // 朗読完了 - 自動で対話画面に遷移
+            isPlaying = false;
+            document.getElementById('play-btn').textContent = '▶';
+            audioElement = null;
+            playingPage = null;
+            
+            console.log('✅ Reading completed. Moving to dialogue screen...');
+            
+            // 少し待ってから対話画面に遷移（音声終了の余韻）
+            setTimeout(() => {
+              goToDialogue();
+            }, 500);
+          }
+        }
+      };
+      
+      audioElement.onerror = () => {
+        console.error('Audio playback error:', audioPath);
+        isPlaying = false;
+        document.getElementById('play-btn').textContent = '▶';
+        audioElement = null;
+        playingPage = null;
+      };
+      
+      audioElement.play().catch(err => {
+        console.error('Audio play failed:', err);
+        isPlaying = false;
+        document.getElementById('play-btn').textContent = '▶';
+        audioElement = null;
+        playingPage = null;
+      });
+    }
+
+    // ========================================
+    // 対話画面
+    // ========================================
+    function goToDialogue() {
+      // キャラクター情報を設定
+      const char = characterData[currentCharacter];
+      
+      // 対話画面のスタイルを変更
+      const dialogueScreen = document.getElementById('dialogue-screen');
+      dialogueScreen.className = 'screen dialogue-screen ' + currentCharacter;
+      
+      // キャラクター画像のスタイルを変更
+      const charImage = document.getElementById('character-image');
+      charImage.className = 'character-image ' + currentCharacter;
+      charImage.textContent = char.icon;
+      
+      // キャラクター情報を更新（接続中は「せつぞくちゅう」表示→接続完了で「おはなし できるよ」に更新）
+      document.getElementById('character-name').textContent = char.names[currentLanguage];
+      document.getElementById('character-status').textContent = currentLanguage === 'ja' ? 'せつぞくちゅう...' : 'Connecting...';
+      document.getElementById('dialogue-bubble').innerHTML = char.prompts[currentLanguage];
+      
+      showScreen('dialogue-screen');
+      
+      // WebSocket接続（フルくん指定のエンドポイント）
+      connectWebSocket();
+    }
+
+    // WebSocket接続
+    function connectWebSocket() {
+      const wsUrl = `wss://api.yomitomo.com/ws/realtime?character=${currentCharacter}`;
+      
+      console.log('🔌 WebSocket接続先:', wsUrl);
+      console.log('📍 現在のホスト名:', window.location.hostname);
+      console.log('📍 現在のURL:', window.location.href);
+      
+      try {
+        ws = new WebSocket(wsUrl);
+        
+        ws.onopen = () => {
+          console.log('✅ WebSocket接続成功:', currentCharacter);
+          console.log('✅ WebSocket readyState:', ws.readyState); // 1 = OPEN
+          // 「せつぞくちゅう」→「おはなし できるよ」に更新（画面遷移の完了）
+          const char = characterData[currentCharacter];
+          if (char) document.getElementById('character-status').textContent = char.statuses[currentLanguage];
+        };
+        
+        ws.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            
+            // 【デバッグログ】全メッセージのtypeをログ出力
+            console.log("📩 WebSocket受信:", data.type);
+            
+            // セッション作成完了・接続準備完了（「せつぞくちゅう」→「おはなし できるよ」に更新）
+            if (data.type === 'session.created' || data.type === 'session.updated') {
+              console.log('✅ Session ready');
+              const char = characterData[currentCharacter];
+              if (char) document.getElementById('character-status').textContent = char.statuses[currentLanguage];
+            }
+            // バックエンドからの接続成功通知（「せつぞくちゅう」→「おはなし できるよ」に更新）
+            if (data.type === 'connection.init' && data.status === 'connected') {
+              console.log('✅ connection.init: 対話準備完了');
+              const char = characterData[currentCharacter];
+              if (char) document.getElementById('character-status').textContent = char.statuses[currentLanguage];
+            }
+            // エラー受信時はメッセージ表示
+            if (data.type === 'error' && data.error) {
+              console.error('❌ WebSocket error from server:', data.error);
+              const msg = data.error.message || (currentLanguage === 'ja' ? 'せつぞく エラー' : 'Connection error');
+              document.getElementById('character-status').textContent = currentLanguage === 'ja' ? 'せつぞく できません' : 'Connection failed';
+              alert(msg);
+            }
+            
+            // AIの応答テキスト
+            if (data.type === 'response.output_text.delta' || data.type === 'response.text.delta') {
+              const textDelta = data.delta || data.text || '';
+              if (textDelta) {
+                console.log('📝 テキスト応答:', textDelta);
+                // 既存のテキストに追加（または置き換え）
+                const bubble = document.getElementById('dialogue-bubble');
+                const currentText = bubble.textContent || '';
+                bubble.textContent = currentText + textDelta;
+              }
+            }
+            
+            // AIの音声データ（正しいイベントタイプ: response.output_audio.delta）
+            if (data.type === 'response.output_audio.delta') {
+              // 【デバッグログ】音声データ受信
+              console.log("🔊 音声データ受信! サイズ:", data.delta?.length || 0);
+              console.log("🔊 音声データ詳細:", {
+                type: data.type,
+                delta_length: data.delta?.length || 0,
+                delta_preview: data.delta ? data.delta.substring(0, 50) + "..." : "なし"
+              });
+              // キューに追加（順番に再生）
+              if (data.delta) {
+                queueAudio(data.delta);
+              } else {
+                console.warn('⚠️ 音声データが空です');
+              }
+            }
+            
+            // 旧形式のイベントタイプ（互換性のため）
+            if (data.type === 'response.audio.delta') {
+              console.log("⚠️ 旧形式のイベントタイプ: response.audio.delta");
+              console.log("🔊 音声データ受信! サイズ:", data.delta?.length || 0);
+              // キューに追加（順番に再生）
+              if (data.delta) {
+                queueAudio(data.delta);
+              }
+            }
+            
+            // 応答完了
+            if (data.type === 'response.done') {
+              console.log('✅ 応答完了');
+              // 残りの音声データがあれば再生
+              if (audioQueue.length > 0) {
+                console.log(`📦 残りの音声データを再生: ${audioQueue.length}チャンク`);
+              }
+              const char = characterData[currentCharacter];
+              document.getElementById('character-status').textContent = char.statuses[currentLanguage];
+            }
+            
+            // 旧形式のテキスト処理（互換性のため）
+            if (data.text && !data.type) {
+              document.getElementById('dialogue-bubble').innerHTML = data.text.replace(/\n/g, '<br>');
+            }
+            
+          } catch (e) {
+            console.error('❌ メッセージ解析エラー:', e);
+          }
+        };
+        
+        ws.onerror = (error) => {
+          console.error('❌ WebSocket error:', error);
+          console.error('❌ WebSocket readyState:', ws ? ws.readyState : 'null');
+          console.error('❌ 接続先URL:', wsUrl);
+          const statusEl = document.getElementById('character-status');
+          if (statusEl) statusEl.textContent = currentLanguage === 'ja' ? 'せつぞく できません' : 'Connection failed';
+        };
+        
+        ws.onclose = (event) => {
+          console.log('🔌 WebSocket closed');
+          console.log('🔌 Close code:', event.code);
+          console.log('🔌 Close reason:', event.reason);
+          console.log('🔌 Was clean:', event.wasClean);
+          const statusEl = document.getElementById('character-status');
+          if (statusEl) statusEl.textContent = currentLanguage === 'ja' ? 'せつぞく できません' : 'Connection failed';
+        };
+      } catch (e) {
+        console.error('❌ WebSocket connection failed:', e);
+        console.error('❌ エラー詳細:', e.message);
+        console.error('❌ スタックトレース:', e.stack);
+      }
+    }
+
+    // 録音開始
+    async function startRecording() {
+      try {
+        console.log('🎤 Starting recording...');
+        
+        // WebSocket接続確認
+        if (!ws || ws.readyState !== WebSocket.OPEN) {
+          console.error('❌ WebSocket is not connected');
+          console.error('❌ WebSocket readyState:', ws ? ws.readyState : 'null');
+          console.error('❌ WebSocket.OPEN:', WebSocket.OPEN); // 1
+          console.error('❌ 接続先URL:', ws ? 'N/A' : 'WebSocketオブジェクトが存在しません');
+          
+          // WebSocket接続を再試行
+          if (!ws || ws.readyState === WebSocket.CLOSED || ws.readyState === WebSocket.CLOSING) {
+            console.log('🔄 WebSocket再接続を試みます...');
+            connectWebSocket();
+            // 少し待ってから再確認
+            setTimeout(() => {
+              if (!ws || ws.readyState !== WebSocket.OPEN) {
+                alert(currentLanguage === 'ja' ? 'せつぞくちゅう...\nしばらくお待ちください。' : 'Connecting...\nPlease wait a moment.');
+              }
+            }, 1000);
+          } else {
+            alert(currentLanguage === 'ja' ? 'せつぞくちゅう...' : 'Connecting...');
+          }
+          
+          isRecording = false;
+          const btn = document.getElementById('talk-btn');
+          btn.classList.remove('recording');
+          btn.textContent = '🎤';
+          return;
+        }
+        
+        // マイク取得（ユーザー操作由来のため getUserMedia 許可）
+        // 注: ブラウザは sampleRate を無視してデバイス既定を使うことがある。バックエンドは 24kHz 想定。
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          audio: {
+            sampleRate: 24000,
+            channelCount: 1,
+            echoCancellation: true,
+            noiseSuppression: true
+          }
+        });
+        
+        console.log('✅ Microphone access granted');
+        mediaStream = stream;
+        
+        // AudioContext作成（録音用）
+        if (!audioContext) {
+          audioContext = new (window.AudioContext || window.webkitAudioContext)({
+            sampleRate: 24000
+          });
+          console.log('🎚️ AudioContext作成: ', audioContext.sampleRate, 'Hz');
+        }
+        
+        // AudioContextの状態確認とresume
+        if (audioContext.state === 'suspended') {
+          console.log('🎚️ AudioContextが停止中 → 再開します');
+          await audioContext.resume();
+          console.log('🎚️ AudioContext再開後状態: ', audioContext.state);
+        }
+        
+        const source = audioContext.createMediaStreamSource(stream);
+        audioProcessor = audioContext.createScriptProcessor(4096, 1, 1);
+        
+        audioProcessor.onaudioprocess = (e) => {
+          if (!isRecording || !ws || ws.readyState !== WebSocket.OPEN) {
+            return;
+          }
+          
+          const inputData = e.inputBuffer.getChannelData(0);
+          
+          // Float32をPCM16に変換
+          const pcm16 = new Int16Array(inputData.length);
+          for (let i = 0; i < inputData.length; i++) {
+            pcm16[i] = Math.max(-32768, Math.min(32767, inputData[i] * 32768));
+          }
+          
+          // Base64エンコード
+          const uint8Array = new Uint8Array(pcm16.buffer);
+          let binaryString = '';
+          for (let i = 0; i < uint8Array.length; i++) {
+            binaryString += String.fromCharCode(uint8Array[i]);
+          }
+          const base64 = btoa(binaryString);
+          
+          // WebSocketで送信
+          const message = {
+            type: 'input_audio_buffer.append',
+            audio: base64
+          };
+          
+          ws.send(JSON.stringify(message));
+          console.log('📤 Audio chunk sent, size:', base64.length);
+        };
+        
+        source.connect(audioProcessor);
+        audioProcessor.connect(audioContext.destination);
+        
+        console.log('✅ Recording started');
+        
+      } catch (error) {
+        console.error('❌ Microphone error:', error);
+        isRecording = false;
+        const btn = document.getElementById('talk-btn');
+        if (btn) { btn.classList.remove('recording'); btn.textContent = '🎤'; }
+        const statusEl = document.getElementById('character-status');
+        if (statusEl) statusEl.textContent = currentLanguage === 'ja' ? 'おはなし できるよ' : 'Ready to talk';
+        // 許可拒否とその他のエラーでメッセージを分ける
+        const isPermissionDenied = error && (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError');
+        const msg = isPermissionDenied
+          ? (currentLanguage === 'ja' ? 'マイクの使用を許可してください' : 'Please allow microphone access')
+          : (currentLanguage === 'ja' ? 'マイクにアクセスできませんでした' : 'Could not access microphone');
+        alert(msg);
+      }
+    }
+    
+    // 録音停止・送信
+    function stopRecording() {
+      console.log('🛑 Stopping recording...');
+      
+      // マイクストリームを停止
+      if (mediaStream) {
+        mediaStream.getTracks().forEach(track => track.stop());
+        mediaStream = null;
+        console.log('✅ Microphone stream stopped');
+      }
+      
+      // ScriptProcessorを切断
+      if (audioProcessor) {
+        audioProcessor.disconnect();
+        audioProcessor = null;
+        console.log('✅ Audio processor disconnected');
+      }
+      
+      // WebSocketで送信
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        // 音声入力完了を通知
+        const commitMessage = {
+          type: 'input_audio_buffer.commit'
+        };
+        ws.send(JSON.stringify(commitMessage));
+        console.log('📤 input_audio_buffer.commit sent');
+        
+        // 応答を要求（Server VADモードでは不要だが、念のため）
+        // 注意：Server VADモードでは自動でresponseが作成されるため、
+        // response.createを送ると競合する可能性があります
+        // const responseMessage = {
+        //   type: 'response.create'
+        // };
+        // ws.send(JSON.stringify(responseMessage));
+        // console.log('📤 response.create sent');
+      }
+      
+      console.log('✅ Recording stopped');
+    }
+    
+    // 話すボタントグル
+    function toggleTalk() {
+      const btn = document.getElementById('talk-btn');
+      const char = characterData[currentCharacter];
+      
+      // WebSocket接続確認
+      if (!ws || ws.readyState !== WebSocket.OPEN) {
+        console.warn('⚠️ WebSocket is not connected');
+        alert(currentLanguage === 'ja' ? 'せつぞくちゅう...' : 'Connecting...');
+        return;
+      }
+      
+      if (isRecording) {
+        // 録音停止
+        btn.classList.remove('recording');
+        btn.textContent = '🎤';
+        isRecording = false;
+        
+        document.getElementById('character-status').textContent = 
+          currentLanguage === 'ja' ? 'かんがえてるよ...' : 'Thinking...';
+        
+        stopRecording();
+        
+      } else {
+        // 録音開始
+        btn.classList.add('recording');
+        btn.textContent = '🔴';
+        isRecording = true;
+        
+        document.getElementById('character-status').textContent = 
+          currentLanguage === 'ja' ? 'きいてるよ...' : 'Listening...';
+        
+        startRecording();
+      }
+    }
+
+    // 対話終了
+    function endDialogue() {
+      // 録音を停止
+      if (isRecording) {
+        isRecording = false;
+        stopRecording();
+      }
+      
+      // WebSocket切断
+      if (ws) {
+        ws.close();
+        ws = null;
+      }
+      
+      // 音声再生を停止
+      if (audioContext) {
+        audioContext.close();
+        audioContext = null;
+      }
+      audioQueue = [];
+      isPlayingResponse = false;
+      
+      showScreen('bookshelf-screen');
+    }
+    
+    // ========================================
+    // 対話画面の音声再生
+    // ========================================
+    
+    // 音声データをキューに追加
+    function queueAudio(base64Audio) {
+      if (!base64Audio || base64Audio.length === 0) {
+        console.warn('⚠️ 空の音声データをキューに追加しようとしました');
+        return;
+      }
+      
+      audioQueue.push(base64Audio);
+      console.log(`📥 音声データをキューに追加: キューサイズ=${audioQueue.length}`);
+      
+      // 再生中でなければ、再生を開始
+      if (!isPlayingResponse) {
+        playNextInQueue();
+      }
+    }
+    
+    // キューから順番に再生
+    async function playNextInQueue() {
+      if (audioQueue.length === 0) {
+        isPlayingResponse = false;
+        console.log('✅ 音声キューが空になりました');
+        return;
+      }
+      
+      isPlayingResponse = true;
+      const audioData = audioQueue.shift();
+      console.log(`▶️ キューから再生開始: 残り${audioQueue.length}チャンク`);
+      
+      try {
+        await playAudioChunk(audioData);
+        // 再生完了後、次のチャンクを再生
+        playNextInQueue();
+      } catch (error) {
+        console.error('❌ 音声再生エラー:', error);
+        // エラーが発生しても次のチャンクを試みる
+        playNextInQueue();
+      }
+    }
+    
+    // 音声チャンクを再生（実際の再生処理）
+    async function playAudioChunk(base64Audio) {
+      return new Promise((resolve, reject) => {
+        try {
+          console.log("🎵 playAudioChunk開始: Base64サイズ", base64Audio?.length || 0);
+          
+          if (!base64Audio || base64Audio.length === 0) {
+            console.error('⚠️ 空の音声データを再生しようとしました');
+            resolve();
+            return;
+          }
+          
+          // Base64をデコードしてPCMデータとして再生
+          const binaryString = atob(base64Audio);
+          const bytes = new Uint8Array(binaryString.length);
+          for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+          }
+          
+          console.log("📦 デコード完了: ", bytes.length, "bytes");
+          
+          // AudioContextで再生
+          if (!audioContext) {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)({
+              sampleRate: 24000
+            });
+            console.log("🎚️ AudioContext作成: ", audioContext.sampleRate, "Hz");
+          }
+          
+          // AudioContextの状態確認とresume
+          console.log("🎚️ AudioContext状態: ", audioContext.state);
+          if (audioContext.state === 'suspended') {
+            console.log("🎚️ AudioContextが停止中 → 再開します");
+            audioContext.resume().then(() => {
+              console.log("🎚️ AudioContext再開後状態: ", audioContext.state);
+              continuePlayback();
+            }).catch(reject);
+            return;
+          }
+          
+          continuePlayback();
+          
+          function continuePlayback() {
+            // PCM16をFloat32に変換
+            const pcm16 = new Int16Array(bytes.buffer);
+            const float32 = new Float32Array(pcm16.length);
+            for (let i = 0; i < pcm16.length; i++) {
+              float32[i] = pcm16[i] / 32768.0;
+            }
+            
+            console.log("🎼 PCM16→Float32変換完了: ", float32.length, "samples");
+            
+            // バッファを作成して再生
+            const buffer = audioContext.createBuffer(1, float32.length, 24000);
+            buffer.getChannelData(0).set(float32);
+            
+            const source = audioContext.createBufferSource();
+            source.buffer = buffer;
+            source.connect(audioContext.destination);
+            
+            source.onended = () => {
+              console.log("✅ 音声チャンク再生完了");
+              resolve();
+            };
+            
+            source.onerror = (error) => {
+              console.error("❌ 音声再生エラー:", error);
+              reject(error);
+            };
+            
+            source.start();
+            console.log("▶️ 音声再生開始");
+          }
+          
+        } catch (error) {
+          console.error('❌ playAudioChunkエラー:', error);
+          reject(error);
+        }
+      });
+    }
+
+    // ========================================
+    // モーダル
+    // ========================================
+    function showPreparingModal() {
+      document.getElementById('preparing-modal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('preparing-modal').classList.remove('active');
+    }
+
+    // ========================================
+    // 初期化実行
+    // ========================================
+    init();
+  <!-- ペアレンタルゲート オーバーレイ -->
+  <div id="parental-gate-overlay" class="overlay-screen">
+    <div class="overlay-card">
+      <div class="gate-icon">🔒</div>
+      <h2 class="gate-title">おうちの ひとに きいてね</h2>
+      <p class="gate-subtitle">この先に進むには、大人の方が答えてください</p>
+      <div class="gate-question-box">
+        <span id="gate-question">12 + 7 = ?</span>
+      </div>
+      <div id="gate-options" class="gate-options"></div>
+      <button class="gate-cancel-btn" onclick="closeParentalGate()">もどる</button>
+    </div>
+  </div>
+
+  <!-- サブスク画面 オーバーレイ -->
+  <div id="subscribe-overlay" class="overlay-screen">
+    <div class="overlay-card subscribe-card">
+      <div class="subscribe-icon">✨</div>
+      <h2 class="subscribe-title">プレミアム</h2>
+      <p class="subscribe-subtitle">すべての おはなしが よめるよ！</p>
+
+      <div class="subscribe-features">
+        <div class="feature-item">📚 11さくひん よみほうだい</div>
+        <div class="feature-item">🎧 よみきかせ きのう</div>
+        <div class="feature-item">🎤 キャラクターと おはなし</div>
+      </div>
+
+      <div class="subscribe-price">
+        <span class="price-amount">¥480</span>
+        <span class="price-period">/ 月</span>
+      </div>
+
+      <button class="subscribe-btn" onclick="handleSubscribe()">
+        プレミアムに なる
+      </button>
+
+      <button class="restore-btn" onclick="restorePurchase()">
+        購入を復元
+      </button>
+
+      <button class="subscribe-cancel-btn" onclick="closeSubscribeScreen()">
+        あとで
+      </button>
+    </div>
+  </div>
+
+  <script src="freemium.js"></script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+{
+  "title": "ありがとうのかくれんぼ",
+  "language": "ja",
+  "voice": "Despina",
+  "recorded_at": "2026-01-14T14:21:10.915271",
+  "total_pages": 8,
+  "total_duration_sec": 876.6,
+  "total_duration_min": 14.61,
+  "pages": [
+    {
+      "page": 1,
+      "filename": "audio_output\\ありがとうのかくれんぼ_ja\\miru_page1_ja.wav",
+      "char_count": 126,
+      "duration_sec": 25.9
+    },
+    {
+      "page": 2,
+      "filename": "audio_output\\ありがとうのかくれんぼ_ja\\miru_page2_ja.wav",
+      "char_count": 93,
+      "duration_sec": 16.6
+    },
+    {
+      "page": 3,
+      "filename": "audio_output\\ありがとうのかくれんぼ_ja\\miru_page3_ja.wav",
+      "char_count": 116,
+      "duration_sec": 22.6
+    },
+    {
+      "page": 4,
+      "filename": "audio_output\\ありがとうのかくれんぼ_ja\\miru_page4_ja.wav",
+      "char_count": 136,
+      "duration_sec": 29.2
+    },
+    {
+      "page": 5,
+      "filename": "audio_output\\ありがとうのかくれんぼ_ja\\miru_page5_ja.wav",
+      "char_count": 128,
+      "duration_sec": 37.5
+    },
+    {
+      "page": 6,
+      "filename": "audio_output\\ありがとうのかくれんぼ_ja\\miru_page6_ja.wav",
+      "char_count": 114,
+      "duration_sec": 22.4
+    },
+    {
+      "page": 7,
+      "filename": "audio_output\\ありがとうのかくれんぼ_ja\\miru_page7_ja.wav",
+      "char_count": 112,
+      "duration_sec": 655.1
+    },
+    {
+      "page": 8,
+      "filename": "audio_output\\ありがとうのかくれんぼ_ja\\miru_page8_ja.wav",
+      "char_count": 167,
+      "duration_sec": 67.3
+    }
+  ]
+}

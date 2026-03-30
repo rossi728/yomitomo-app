@@ -1,0 +1,59 @@
+{
+  "title": "arigatou",
+  "language": "en",
+  "voice": "Despina",
+  "recorded_at": "2026-01-14T14:24:47.938018",
+  "total_pages": 8,
+  "total_duration_sec": 248.4,
+  "total_duration_min": 4.14,
+  "pages": [
+    {
+      "page": 1,
+      "filename": "audio_output\\arigatou_en\\miru_page1_en.wav",
+      "char_count": 282,
+      "duration_sec": 32.0
+    },
+    {
+      "page": 2,
+      "filename": "audio_output\\arigatou_en\\miru_page2_en.wav",
+      "char_count": 186,
+      "duration_sec": 18.5
+    },
+    {
+      "page": 3,
+      "filename": "audio_output\\arigatou_en\\miru_page3_en.wav",
+      "char_count": 196,
+      "duration_sec": 24.3
+    },
+    {
+      "page": 4,
+      "filename": "audio_output\\arigatou_en\\miru_page4_en.wav",
+      "char_count": 242,
+      "duration_sec": 32.4
+    },
+    {
+      "page": 5,
+      "filename": "audio_output\\arigatou_en\\miru_page5_en.wav",
+      "char_count": 266,
+      "duration_sec": 44.0
+    },
+    {
+      "page": 6,
+      "filename": "audio_output\\arigatou_en\\miru_page6_en.wav",
+      "char_count": 183,
+      "duration_sec": 23.6
+    },
+    {
+      "page": 7,
+      "filename": "audio_output\\arigatou_en\\miru_page7_en.wav",
+      "char_count": 182,
+      "duration_sec": 29.5
+    },
+    {
+      "page": 8,
+      "filename": "audio_output\\arigatou_en\\miru_page8_en.wav",
+      "char_count": 339,
+      "duration_sec": 44.1
+    }
+  ]
+}

@@ -1,0 +1,216 @@
+/* ========================================
+   オーバーレイ共通
+======================================== */
+.overlay-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 15, 26, 0.95);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.overlay-screen.active {
+  display: flex;
+}
+
+.overlay-card {
+  background: linear-gradient(180deg, #2d2438 0%, #1a1525 100%);
+  border-radius: 24px;
+  padding: 32px 24px;
+  max-width: 340px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(157, 124, 216, 0.3);
+}
+
+/* ========================================
+   ペアレンタルゲート
+======================================== */
+.gate-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.gate-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #f5f0e8;
+  margin-bottom: 8px;
+}
+
+.gate-subtitle {
+  font-size: 13px;
+  color: #c9c0b5;
+  margin-bottom: 24px;
+}
+
+.gate-question-box {
+  background: rgba(244, 208, 63, 0.1);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+#gate-question {
+  font-size: 28px;
+  font-weight: 700;
+  color: #f4d03f;
+}
+
+.gate-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.gate-option-btn {
+  background: #7c5cb8;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 16px;
+  font-size: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.gate-option-btn:hover {
+  background: #9370db;
+  transform: scale(1.02);
+}
+
+.gate-option-btn:active {
+  transform: scale(0.98);
+}
+
+.gate-cancel-btn {
+  background: transparent;
+  color: #c9c0b5;
+  border: 1px solid #c9c0b5;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ========================================
+   サブスク画面
+======================================== */
+.subscribe-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.subscribe-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #f4d03f;
+  margin-bottom: 8px;
+}
+
+.subscribe-subtitle {
+  font-size: 14px;
+  color: #c9c0b5;
+  margin-bottom: 24px;
+}
+
+.subscribe-features {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.feature-item {
+  font-size: 14px;
+  color: #f5f0e8;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.feature-item:last-child {
+  border-bottom: none;
+}
+
+.subscribe-price {
+  margin-bottom: 20px;
+}
+
+.price-amount {
+  font-size: 36px;
+  font-weight: 700;
+  color: #f5f0e8;
+}
+
+.price-period {
+  font-size: 16px;
+  color: #c9c0b5;
+}
+
+.subscribe-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #f4d03f 0%, #e8b923 100%);
+  color: #1a1525;
+  border: none;
+  border-radius: 16px;
+  padding: 16px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 12px;
+  font-family: inherit;
+}
+
+.restore-btn {
+  width: 100%;
+  background: transparent;
+  color: #9d7cd8;
+  border: none;
+  padding: 12px;
+  font-size: 14px;
+  cursor: pointer;
+  margin-bottom: 8px;
+  font-family: inherit;
+}
+
+.subscribe-cancel-btn {
+  background: transparent;
+  color: #c9c0b5;
+  border: none;
+  padding: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ========================================
+   本棚の鍵アイコン
+======================================== */
+.lock-icon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 12px;
+}
+
+.book-cover {
+  position: relative;
+}
