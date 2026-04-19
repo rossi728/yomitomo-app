@@ -887,7 +887,6 @@
       border-radius: 20px;
       cursor: pointer;
     }
-  </style>
   <link rel="stylesheet" href="freemium.css">
 </head>
 <body>
@@ -1845,13 +1844,9 @@
     // ========================================
     function selectBook(bookId) {
       // フリーミアムチェック
-      const bookElement = document.querySelector(`[onclick*="selectBook('${bookId}')"]`);
-      if (bookElement) {
-        const dataBookId = bookElement.getAttribute('data-book-id');
-        if (dataBookId && typeof canAccessBook === 'function' && !canAccessBook(dataBookId)) {
-          showParentalGate(dataBookId);
-          return;
-        }
+      if (typeof canAccessBook === 'function' && !canAccessBook(bookId)) {
+        showParentalGate(bookId);
+        return;
       }
 
       currentBook = bookId;
@@ -2654,44 +2649,53 @@
     // 初期化実行
     // ========================================
     init();
-  </script>
-
-  <!-- ペアレンタルゲート -->
+  <!-- ペアレンタルゲート オーバーレイ -->
   <div id="parental-gate-overlay" class="overlay-screen">
     <div class="overlay-card">
-      <div class="gate-icon">🔐</div>
-      <h2 class="gate-title">おとなのかたへ</h2>
-      <p class="gate-subtitle">この先に進むには、下の計算問題に答えてください</p>
+      <div class="gate-icon">🔒</div>
+      <h2 class="gate-title">おうちの ひとに きいてね</h2>
+      <p class="gate-subtitle">この先に進むには、大人の方が答えてください</p>
       <div class="gate-question-box">
         <span id="gate-question">12 + 7 = ?</span>
       </div>
-      <div id="gate-options" class="gate-options">
-      </div>
+      <div id="gate-options" class="gate-options"></div>
       <button class="gate-cancel-btn" onclick="closeParentalGate()">もどる</button>
     </div>
   </div>
 
-  <!-- サブスク画面 -->
+  <!-- サブスク画面 オーバーレイ -->
   <div id="subscribe-overlay" class="overlay-screen">
-    <div class="overlay-card">
+    <div class="overlay-card subscribe-card">
       <div class="subscribe-icon">✨</div>
-      <h2 class="subscribe-title">プレミアムプラン</h2>
-      <p class="subscribe-subtitle">すべての絵本が読み放題！</p>
+      <h2 class="subscribe-title">プレミアム</h2>
+      <p class="subscribe-subtitle">すべての おはなしが よめるよ！</p>
+
       <div class="subscribe-features">
-        <div class="feature-item">📚 全11作品が読み放題</div>
-        <div class="feature-item">🎭 キャラクターとおしゃべり</div>
-        <div class="feature-item">🌟 新作も追加料金なし</div>
+        <div class="feature-item">📚 11さくひん よみほうだい</div>
+        <div class="feature-item">🎧 よみきかせ きのう</div>
+        <div class="feature-item">🎤 キャラクターと おはなし</div>
       </div>
+
       <div class="subscribe-price">
-        <span class="price-amount">¥480</span>
-        <span class="price-period">/月</span>
+        <span class="price-amount" id="subscription-price">¥480</span>
+        <span class="price-period">/ 月</span>
       </div>
-      <button class="subscribe-btn" onclick="handleSubscribe()">登録する</button>
-      <button class="restore-btn" onclick="restorePurchase()">購入を復元</button>
-      <button class="subscribe-cancel-btn" onclick="closeSubscribeScreen()">あとで</button>
+
+      <button class="subscribe-btn" onclick="handleSubscribe()">
+        プレミアムに なる
+      </button>
+
+      <button class="restore-btn" onclick="restorePurchase()">
+        購入を復元
+      </button>
+
+      <button class="subscribe-cancel-btn" onclick="closeSubscribeScreen()">
+        あとで
+      </button>
     </div>
   </div>
 
   <script src="freemium.js"></script>
+  <script src="iap.js"></script>
 </body>
 </html>

@@ -84,15 +84,7 @@ function closeSubscribeScreen() {
   document.getElementById('subscribe-overlay').classList.remove('active');
 }
 
-function handleSubscribe() {
-  // TODO: ここでCapacitorのアプリ内課金APIを呼び出す
-  alert('アプリ内課金は準備中です');
-}
-
-function restorePurchase() {
-  // TODO: 購入復元処理
-  alert('購入復元は準備中です');
-}
+// 注: handleSubscribe() / restorePurchase() は iap.js で定義（StoreKit本実装）
 
 // ========================================
 // 本棚UI更新
