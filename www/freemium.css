@@ -28,6 +28,8 @@
   text-align: center;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   border: 1px solid rgba(157, 124, 216, 0.3);
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 /* ========================================
@@ -192,6 +194,75 @@
   font-size: 14px;
   cursor: pointer;
   font-family: inherit;
+}
+
+/* ========================================
+   サブスク画面 - Apple 必須情報追加（v1.0 Build 4）
+======================================== */
+
+.subscribe-type-label {
+  font-size: 11px;
+  color: #9d7cd8;
+  letter-spacing: 0.5px;
+  margin-top: -4px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.subscribe-legal {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-top: 16px;
+  margin-bottom: 12px;
+  text-align: left;
+}
+
+.subscribe-legal-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #f5f0e8;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.subscribe-legal-list {
+  margin: 0;
+  padding-left: 18px;
+  list-style: disc;
+}
+
+.subscribe-legal-list li {
+  font-size: 11px;
+  line-height: 1.6;
+  color: #c9c0b5;
+  margin-bottom: 6px;
+}
+
+.subscribe-legal-list li:last-child {
+  margin-bottom: 0;
+}
+
+.subscribe-legal-links {
+  text-align: center;
+  font-size: 12px;
+  margin-top: 4px;
+  margin-bottom: 16px;
+}
+
+.subscribe-legal-links a {
+  color: #f4d03f;
+  text-decoration: underline;
+  margin: 0 6px;
+}
+
+.subscribe-legal-links a:hover,
+.subscribe-legal-links a:active {
+  color: #e8b923;
+}
+
+.subscribe-legal-links .separator {
+  color: rgba(201, 192, 181, 0.4);
 }
 
 /* ========================================
