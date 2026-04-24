@@ -108,6 +108,7 @@
        ホーム画面
     ======================================== */
     .home-screen {
+      position: relative;
       background: linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-library) 100%);
       justify-content: center;
       align-items: center;
@@ -896,6 +897,7 @@
          ホーム画面
     ======================================== -->
     <div id="home-screen" class="screen home-screen active">
+      <button type="button" class="home-settings-btn" onclick="showSettings()" aria-label="設定">⚙️</button>
       <div class="stars" id="home-stars"></div>
       
       <div class="lang-switch">
@@ -917,7 +919,7 @@
       <h1 class="welcome-text" id="welcome-text">ようこそ、ほんの せかいへ。</h1>
       <p class="welcome-sub" id="welcome-sub">ふしぎな としょかん</p>
       
-      <button class="enter-btn" onclick="showScreen('bookshelf-screen')" id="enter-btn">
+      <button class="enter-btn" onclick="enterFromHome()" id="enter-btn">
         はいる
       </button>
     </div>
@@ -2141,6 +2143,11 @@
     // 対話画面
     // ========================================
     function goToDialogue() {
+      if (!canStartVoiceDialog()) {
+        console.log('[Consent] 音声対話の同意なし、対話画面へ進めない');
+        return;
+      }
+
       // キャラクター情報を設定
       const char = characterData[currentCharacter];
       
@@ -2646,9 +2653,171 @@
       document.getElementById('preparing-modal').classList.remove('active');
     }
 
+    // ============================================
+    // 音声対話同意管理 (Apple 審査 5.1.1(i) / 指示書㉓-rev2 + rev2.1)
+    // ============================================
+
+    const VOICE_CONSENT_KEY = 'yomitomo_voice_consent';
+    const VOICE_CONSENT_DATE_KEY = 'yomitomo_voice_consent_date';
+
+    function getVoiceConsent() {
+      try {
+        return localStorage.getItem(VOICE_CONSENT_KEY);
+      } catch (e) {
+        console.warn('localStorage読み取り失敗:', e);
+        return null;
+      }
+    }
+
+    function setVoiceConsent(status) {
+      try {
+        localStorage.setItem(VOICE_CONSENT_KEY, status);
+        localStorage.setItem(VOICE_CONSENT_DATE_KEY, new Date().toISOString());
+        console.log('[Consent] 音声対話の同意状態を保存:', status);
+      } catch (e) {
+        console.error('[Consent] localStorage保存失敗:', e);
+      }
+    }
+
+    function showVoiceConsentOverlay() {
+      const overlay = document.getElementById('voice-consent-overlay');
+      if (overlay) {
+        overlay.classList.add('active');
+        const card = overlay.querySelector('.voice-consent-card');
+        if (card) {
+          card.scrollTop = 0;
+        }
+      }
+    }
+
+    function hideVoiceConsentOverlay() {
+      const overlay = document.getElementById('voice-consent-overlay');
+      if (overlay) {
+        overlay.classList.remove('active');
+      }
+    }
+
+    function setupVoiceConsentHandlers() {
+      const agreeBtn = document.getElementById('voice-consent-agree');
+      const denyBtn = document.getElementById('voice-consent-deny');
+
+      if (agreeBtn) {
+        agreeBtn.addEventListener('click', () => {
+          setVoiceConsent('granted');
+          hideVoiceConsentOverlay();
+        });
+      }
+
+      if (denyBtn) {
+        denyBtn.addEventListener('click', () => {
+          setVoiceConsent('denied');
+          hideVoiceConsentOverlay();
+        });
+      }
+    }
+
+    function canStartVoiceDialog() {
+      const consent = getVoiceConsent();
+      if (consent === 'granted') {
+        return true;
+      }
+
+      if (consent === 'denied') {
+        alert('音声対話機能はオフになっています。\n\n設定画面から「音声対話を有効にする」をタップすると、ご利用いただけます。');
+        return false;
+      }
+
+      showVoiceConsentOverlay();
+      return false;
+    }
+
+    function enterFromHome() {
+      const consent = getVoiceConsent();
+      if (consent === null) {
+        showVoiceConsentOverlay();
+        const overlay = document.getElementById('voice-consent-overlay');
+        const observer = new MutationObserver(() => {
+          if (!overlay.classList.contains('active')) {
+            observer.disconnect();
+            showScreen('bookshelf-screen');
+          }
+        });
+        observer.observe(overlay, { attributes: true, attributeFilter: ['class'] });
+      } else {
+        showScreen('bookshelf-screen');
+      }
+    }
+
+    function updateVoiceConsentStatusDisplay() {
+      const statusEl = document.getElementById('voice-consent-status');
+      const toggleBtn = document.getElementById('voice-consent-toggle');
+      if (!statusEl || !toggleBtn) {
+        return;
+      }
+
+      const consent = getVoiceConsent();
+      if (consent === 'granted') {
+        statusEl.innerHTML = '<span style="color:#6bcf7f;">✅ 有効</span>';
+        toggleBtn.textContent = '無効にする';
+      } else if (consent === 'denied') {
+        statusEl.innerHTML = '<span style="color:#e88;">⊘ 無効</span>';
+        toggleBtn.textContent = '有効にする';
+      } else {
+        statusEl.innerHTML = '<span style="color:#c5b8e8;">未設定</span>';
+        toggleBtn.textContent = '設定する';
+      }
+    }
+
+    function setupVoiceConsentSettingsHandler() {
+      const toggleBtn = document.getElementById('voice-consent-toggle');
+      if (!toggleBtn) {
+        return;
+      }
+
+      const newBtn = toggleBtn.cloneNode(true);
+      toggleBtn.parentNode.replaceChild(newBtn, toggleBtn);
+
+      newBtn.addEventListener('click', () => {
+        const consent = getVoiceConsent();
+        if (consent === 'granted') {
+          if (confirm('音声対話機能を無効にしますか?\n\n無効にすると、AI キャラクターとの音声会話ができなくなります(絵本の閲覧は引き続き可能です)。')) {
+            setVoiceConsent('denied');
+            updateVoiceConsentStatusDisplay();
+          }
+        } else {
+          showVoiceConsentOverlay();
+          const overlay = document.getElementById('voice-consent-overlay');
+          const observer = new MutationObserver(() => {
+            if (!overlay.classList.contains('active')) {
+              updateVoiceConsentStatusDisplay();
+              observer.disconnect();
+            }
+          });
+          observer.observe(overlay, { attributes: true, attributeFilter: ['class'] });
+        }
+      });
+    }
+
+    function showSettings() {
+      const overlay = document.getElementById('settings-overlay');
+      if (overlay) {
+        overlay.classList.add('active');
+        updateVoiceConsentStatusDisplay();
+        setupVoiceConsentSettingsHandler();
+      }
+    }
+
+    function hideSettings() {
+      const overlay = document.getElementById('settings-overlay');
+      if (overlay) {
+        overlay.classList.remove('active');
+      }
+    }
+
     // ========================================
     // 初期化実行
     // ========================================
+    setupVoiceConsentHandlers();
     init();
   </script>
   <!-- ペアレンタルゲート オーバーレイ -->
@@ -2711,6 +2880,108 @@
       <button class="subscribe-cancel-btn" onclick="closeSubscribeScreen()">
         あとで
       </button>
+    </div>
+  </div>
+
+  <!-- 音声対話同意オーバーレイ (Apple 審査 5.1.1(i) 対応) -->
+  <div id="voice-consent-overlay" class="overlay-screen">
+    <div class="overlay-content voice-consent-card">
+
+      <div class="consent-header">
+        <div class="consent-icon">🎤</div>
+        <h2>おうちのかたへ</h2>
+        <p class="consent-subtitle">音声対話機能について大切なお知らせ</p>
+      </div>
+
+      <div class="consent-body">
+        <div class="consent-section">
+          <h3>🗣️ 音声対話機能とは</h3>
+          <p>お子さまが絵本のキャラクターと、マイクを使って会話できる機能です。</p>
+        </div>
+
+        <div class="consent-section highlighted">
+          <h3>📡 送信される情報</h3>
+          <ul>
+            <li>お子さまがマイクに話した<strong>音声データ</strong></li>
+            <li>選択された絵本の<strong>キャラクター名</strong>(例:ももたろう)</li>
+          </ul>
+        </div>
+
+        <div class="consent-section">
+          <h3>🚫 送信されない情報</h3>
+          <ul>
+            <li>お名前・メールアドレス・電話番号</li>
+            <li>位置情報・端末情報</li>
+            <li>Apple ID の情報</li>
+          </ul>
+        </div>
+
+        <div class="consent-section highlighted-warning">
+          <h3>🌐 送信先</h3>
+          <p>音声データは、弊社サーバー(api.yomitomo.com)を経由して、<strong>OpenAI 社(アメリカ合衆国)の Realtime API</strong> に送信されます。</p>
+          <p class="small-note">OpenAI 社は、本アプリから送信された音声データを AI モデルの学習には使用しません。データは不正利用監視のため最大 30 日間保持された後、削除されます。</p>
+        </div>
+
+        <div class="consent-section">
+          <h3>🔒 データの保存について</h3>
+          <ul>
+            <li>弊社では、音声や対話内容を<strong>保存しません</strong></li>
+            <li>通信はすべて暗号化されています</li>
+          </ul>
+        </div>
+
+        <div class="consent-section">
+          <h3>⚙️ 同意の取り消し</h3>
+          <p>一度同意しても、アプリ内の「設定」から、いつでも取り消せます。取り消すと音声対話機能は停止します(絵本の閲覧は引き続き可能です)。</p>
+        </div>
+
+        <div class="consent-links">
+          <a href="https://yomitomo.com/privacy-policy.html" target="_blank" rel="noopener noreferrer">プライバシーポリシー全文</a>
+          <span class="sep">|</span>
+          <a href="https://yomitomo.com/terms.html" target="_blank" rel="noopener noreferrer">利用規約</a>
+        </div>
+      </div>
+
+      <div class="consent-buttons">
+        <button type="button" id="voice-consent-agree" class="consent-btn consent-btn-agree">
+          同意して利用する
+        </button>
+        <button type="button" id="voice-consent-deny" class="consent-btn consent-btn-deny">
+          同意しない(音声対話を使わない)
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 設定オーバーレイ -->
+  <div id="settings-overlay" class="overlay-screen">
+    <div class="overlay-content settings-card">
+      <div class="settings-header">
+        <h2>⚙️ 設定</h2>
+        <button type="button" class="settings-close-btn" onclick="hideSettings()" aria-label="閉じる">×</button>
+      </div>
+      <div class="settings-body">
+        <div class="settings-item">
+          <div class="settings-item-label">
+            <span class="settings-icon">🎤</span>
+            <span>音声対話機能</span>
+          </div>
+          <div class="settings-item-control">
+            <div id="voice-consent-status" class="settings-status"></div>
+            <button type="button" id="voice-consent-toggle" class="settings-btn">変更</button>
+          </div>
+        </div>
+        <div class="settings-description">
+          お子さまの音声を OpenAI 社のAIサービスに送信することへの同意状態です。
+        </div>
+
+        <div class="settings-links">
+          <a href="https://yomitomo.com/privacy-policy.html" target="_blank" rel="noopener noreferrer">プライバシーポリシー</a>
+          <span class="sep">|</span>
+          <a href="https://yomitomo.com/terms.html" target="_blank" rel="noopener noreferrer">利用規約</a>
+        </div>
+      </div>
     </div>
   </div>
 

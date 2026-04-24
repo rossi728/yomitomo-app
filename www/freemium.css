@@ -288,3 +288,319 @@
 .book-cover {
   position: relative;
 }
+
+/* 広めオーバーレイ用（同意・設定） */
+.overlay-content {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* ホーム画面の設定ボタン */
+.home-settings-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 20;
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  color: #ffd87a;
+  font-size: 1.3em;
+  padding: 8px 12px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.home-settings-btn:active {
+  transform: scale(0.96);
+}
+
+/* ============================================
+   音声対話同意オーバーレイ (指示書㉓-rev2)
+   ============================================ */
+
+.voice-consent-card {
+  max-width: 560px;
+  width: 92%;
+  max-height: 88vh;
+  overflow-y: auto;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.consent-header {
+  background: linear-gradient(135deg, #3d2875 0%, #5d3ca8 100%);
+  padding: 24px 20px 20px;
+  text-align: center;
+  border-radius: 16px 16px 0 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.consent-icon {
+  font-size: 2.5em;
+  margin-bottom: 4px;
+}
+
+.consent-header h2 {
+  color: #ffe9a0;
+  font-size: 1.35em;
+  margin: 0 0 4px 0;
+  font-weight: bold;
+}
+
+.consent-subtitle {
+  color: #e9dfff;
+  font-size: 0.9em;
+  margin: 0;
+}
+
+.consent-body {
+  background: linear-gradient(180deg, #2d2438 0%, #1a1525 100%);
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.consent-section {
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.consent-section.highlighted {
+  background: rgba(255, 216, 122, 0.08);
+  border-color: rgba(255, 216, 122, 0.3);
+}
+
+.consent-section.highlighted-warning {
+  background: rgba(255, 180, 120, 0.08);
+  border-color: rgba(255, 180, 120, 0.35);
+}
+
+.consent-section h3 {
+  color: #ffd87a;
+  font-size: 0.98em;
+  margin: 0 0 8px 0;
+  font-weight: bold;
+}
+
+.consent-section p,
+.consent-section ul {
+  color: #ece4ff;
+  font-size: 0.88em;
+  line-height: 1.6;
+  margin: 0 0 4px 0;
+}
+
+.consent-section ul {
+  padding-left: 20px;
+}
+
+.consent-section li {
+  margin-bottom: 4px;
+}
+
+.consent-section .small-note {
+  font-size: 0.8em;
+  color: #c5b8e8;
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+.consent-links {
+  text-align: center;
+  padding: 12px 0;
+  font-size: 0.85em;
+}
+
+.consent-links a {
+  color: #ffd87a;
+  text-decoration: underline;
+}
+
+.consent-links .sep {
+  color: #888;
+  margin: 0 8px;
+}
+
+.consent-buttons {
+  padding: 16px 20px 20px;
+  background: rgba(26, 15, 58, 0.95);
+  border-radius: 0 0 16px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+}
+
+.consent-btn {
+  display: block;
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 1em;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  font-weight: bold;
+  transition: transform 0.1s, box-shadow 0.2s;
+  font-family: inherit;
+}
+
+.consent-btn:active {
+  transform: scale(0.98);
+}
+
+.consent-btn-agree {
+  background: linear-gradient(135deg, #ffd87a 0%, #ffb84d 100%);
+  color: #2d1b5e;
+  box-shadow: 0 4px 12px rgba(255, 216, 122, 0.3);
+}
+
+.consent-btn-deny {
+  background: rgba(255, 255, 255, 0.08);
+  color: #c5b8e8;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin-bottom: 0;
+}
+
+.consent-btn-deny:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+@media (max-width: 480px) {
+  .voice-consent-card {
+    max-height: 92vh;
+    width: 96%;
+  }
+
+  .consent-header {
+    padding: 20px 16px 16px;
+  }
+
+  .consent-body {
+    padding: 16px;
+  }
+
+  .consent-section {
+    padding: 10px 12px;
+  }
+}
+
+/* ============================================
+   設定オーバーレイ
+   ============================================ */
+
+.settings-card {
+  max-width: 400px;
+  width: 92%;
+  background: linear-gradient(180deg, #2d2438 0%, #1a1525 100%);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(157, 124, 216, 0.3);
+  overflow: hidden;
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.settings-header h2 {
+  margin: 0;
+  font-size: 1.2em;
+  color: #f5f0e8;
+}
+
+.settings-close-btn {
+  background: transparent;
+  border: none;
+  color: #c9c0b5;
+  font-size: 1.5em;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-family: inherit;
+}
+
+.settings-body {
+  padding: 8px 18px 20px;
+  text-align: left;
+}
+
+.settings-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.settings-item-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #ece4ff;
+  font-size: 1em;
+}
+
+.settings-icon {
+  font-size: 1.2em;
+}
+
+.settings-item-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.settings-status {
+  font-size: 0.9em;
+}
+
+.settings-btn {
+  padding: 6px 14px;
+  background: rgba(255, 216, 122, 0.2);
+  color: #ffd87a;
+  border: 1px solid rgba(255, 216, 122, 0.4);
+  border-radius: 8px;
+  font-size: 0.85em;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.settings-btn:active {
+  transform: scale(0.95);
+}
+
+.settings-description {
+  font-size: 0.82em;
+  color: #a8a0c9;
+  padding: 4px 0 12px 30px;
+  line-height: 1.5;
+}
+
+.settings-links {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 0.9em;
+}
+
+.settings-links a {
+  color: #ffd87a;
+  text-decoration: underline;
+}
+
+.settings-links .sep {
+  color: #888;
+  margin: 0 8px;
+}
