@@ -604,3 +604,38 @@
   color: #888;
   margin: 0 8px;
 }
+
+/* ============================================
+   ホーム画面 言語選択（指示書 追加作業1）
+   ============================================ */
+
+.language-selector {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin: 24px 0 16px;
+}
+
+.lang-btn {
+  padding: 10px 24px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffe9a0;
+  border: 1.5px solid rgba(255, 233, 160, 0.4);
+  border-radius: 24px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.lang-btn:active {
+  transform: scale(0.95);
+  background: rgba(255, 233, 160, 0.25);
+}
+
+.lang-btn.active {
+  background: linear-gradient(135deg, #ffd87a 0%, #ffb84d 100%);
+  color: #2d1b5e;
+  border-color: transparent;
+  font-weight: bold;
+}

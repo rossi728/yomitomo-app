@@ -212,29 +212,7 @@
       transform: translateY(0);
     }
 
-    .lang-switch {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      display: flex;
-      gap: 8px;
-    }
-    .lang-btn {
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.2);
-      color: var(--text-secondary);
-      padding: 8px 12px;
-      font-size: 12px;
-      font-family: inherit;
-      border-radius: 20px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .lang-btn.active {
-      background: var(--accent-gold);
-      color: var(--bg-deep);
-      border-color: var(--accent-gold);
-    }
+    /* 言語ボタン: スタイルは freemium.css (.language-selector, .lang-btn) */
 
     /* ========================================
        本棚画面
@@ -900,11 +878,6 @@
       <button type="button" class="home-settings-btn" onclick="showSettings()" aria-label="設定">⚙️</button>
       <div class="stars" id="home-stars"></div>
       
-      <div class="lang-switch">
-        <button class="lang-btn active" onclick="setLanguage('ja')">にほんご</button>
-        <button class="lang-btn" onclick="setLanguage('en')">English</button>
-      </div>
-      
       <div class="gate-container">
         <div class="lamp">
           <div class="lamp-body">
@@ -914,6 +887,11 @@
         <div class="gate">
           <div class="gate-inner"></div>
         </div>
+      </div>
+
+      <div class="language-selector">
+        <button type="button" class="lang-btn active" onclick="setLanguage('ja')">にほんご</button>
+        <button type="button" class="lang-btn" onclick="setLanguage('en')">English</button>
       </div>
       
       <h1 class="welcome-text" id="welcome-text">ようこそ、ほんの せかいへ。</h1>
@@ -1137,6 +1115,8 @@
     let isPlaying = false;
     let isRecording = false;
     let ws = null; // WebSocket接続
+    /** 同意後に再開する処理（例: goToDialogue） */
+    let pendingVoiceAction = null;
     let audioElement = null; // 音声再生用（朗読画面）
     let playingPage = null; // 現在再生中のページ番号（ページ切替検知用）
     // 対話画面の音声再生用
@@ -1669,6 +1649,17 @@
     // 初期化
     // ========================================
     function init() {
+      try {
+        const savedLang = localStorage.getItem('yomitomo_lang');
+        if (savedLang === 'ja' || savedLang === 'en') {
+          currentLanguage = savedLang;
+        }
+      } catch (e) {
+        console.warn('言語設定の読み込みに失敗:', e);
+      }
+      syncLangButtonActiveState();
+      updateTexts();
+
       createStars('home-stars', 30);
       createStars('shelf-stars', 20);
       createStars('dialogue-stars', 25);
@@ -1706,16 +1697,22 @@
     // ========================================
     // 言語切り替え
     // ========================================
+    function syncLangButtonActiveState() {
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      const activeBtn = document.querySelector(
+        currentLanguage === 'ja' ? '.lang-btn[onclick*="ja"]' : '.lang-btn[onclick*="en"]'
+      );
+      if (activeBtn) {
+        activeBtn.classList.add('active');
+      }
+    }
+
     function setLanguage(lang) {
       currentLanguage = lang;
       localStorage.setItem('yomitomo_lang', lang);
-      
-      // ボタンの状態を更新
-      document.querySelectorAll('.lang-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.textContent.includes(lang === 'ja' ? 'にほんご' : 'English'));
-      });
-      
-      // テキストを更新
+      syncLangButtonActiveState();
       updateTexts();
     }
 
@@ -2143,7 +2140,9 @@
     // 対話画面
     // ========================================
     function goToDialogue() {
-      if (!canStartVoiceDialog()) {
+      if (!canStartVoiceDialog(() => {
+        goToDialogue();
+      })) {
         console.log('[Consent] 音声対話の同意なし、対話画面へ進めない');
         return;
       }
@@ -2705,18 +2704,24 @@
         agreeBtn.addEventListener('click', () => {
           setVoiceConsent('granted');
           hideVoiceConsentOverlay();
+          if (pendingVoiceAction) {
+            const action = pendingVoiceAction;
+            pendingVoiceAction = null;
+            setTimeout(action, 300);
+          }
         });
       }
 
       if (denyBtn) {
         denyBtn.addEventListener('click', () => {
+          pendingVoiceAction = null;
           setVoiceConsent('denied');
           hideVoiceConsentOverlay();
         });
       }
     }
 
-    function canStartVoiceDialog() {
+    function canStartVoiceDialog(onConsentCallback) {
       const consent = getVoiceConsent();
       if (consent === 'granted') {
         return true;
@@ -2724,9 +2729,11 @@
 
       if (consent === 'denied') {
         alert('音声対話機能はオフになっています。\n\n設定画面から「音声対話を有効にする」をタップすると、ご利用いただけます。');
+        pendingVoiceAction = null;
         return false;
       }
 
+      pendingVoiceAction = (typeof onConsentCallback === 'function') ? onConsentCallback : null;
       showVoiceConsentOverlay();
       return false;
     }
