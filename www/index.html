@@ -2824,7 +2824,19 @@
     // ========================================
     // 初期化実行
     // ========================================
-    setupVoiceConsentHandlers();
+    // 同意ボタン等はこのインライン script ブロックの「後」に HTML があるため、
+    // 同期実行では getElementById が null になりリスナーが付かない。
+    // DOMContentLoaded でオーバーレイ DOM 生成後に登録する。
+    function runWhenDomReady(fn) {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', fn, { once: true });
+      } else {
+        fn();
+      }
+    }
+    runWhenDomReady(() => {
+      setupVoiceConsentHandlers();
+    });
     init();
   </script>
   <!-- ペアレンタルゲート オーバーレイ -->
