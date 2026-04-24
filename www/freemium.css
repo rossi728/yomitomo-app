@@ -299,9 +299,10 @@
 /* ホーム画面の設定ボタン */
 .home-settings-btn {
   position: absolute;
-  top: 16px;
+  /* iOS Safe Area + 余裕（ステータスバー・ノッチと被らないように） */
+  top: calc(env(safe-area-inset-top, 16px) + 50px);
   right: 16px;
-  z-index: 20;
+  z-index: 100;
   background: rgba(255, 255, 255, 0.12);
   border: none;
   color: #ffd87a;
@@ -313,7 +314,8 @@
 }
 
 .home-settings-btn:active {
-  transform: scale(0.96);
+  background: rgba(255, 233, 160, 0.25);
+  transform: scale(0.95);
 }
 
 /* ============================================
