@@ -1,212 +1,200 @@
-// ========================================
-// iap.js - アプリ内課金（StoreKit / Apple In-App Purchase）
-// ========================================
-// 使用プラグイン: cordova-plugin-purchase v13 (CdvPurchase 名前空間)
-// 製品ID: yomitomo.monthly（自動更新サブスクリプション・¥480/月）
+// iap.js - In-App Purchase implementation for yomitomo
+// Build 7: localStorage を StoreKit のキャッシュとして扱う設計に変更
 
-const PRODUCT_ID = 'yomitomo.monthly';
+const PREMIUM_KEY = 'yomitomo_premium_v2';  // ネームスペース化
+const OLD_PREMIUM_KEY = 'isPremium';        // 過去残留クリア用
+const SUBSCRIPTION_PRODUCT_ID = 'yomitomo.monthly';
 
-// ----------------------------------------
-// ストア初期化
-// ----------------------------------------
+// 起動時に必ず古いキーを削除(過去のテスト残留対策)
+try {
+    if (localStorage.getItem(OLD_PREMIUM_KEY) !== null) {
+        console.log('[IAP] Removing legacy isPremium key from localStorage');
+        localStorage.removeItem(OLD_PREMIUM_KEY);
+    }
+} catch (e) {
+    console.warn('[IAP] localStorage cleanup failed:', e);
+}
+
+document.addEventListener('deviceready', initializeStore, false);
+
 function initializeStore() {
-  // ブラウザ環境ではプラグインが存在しないのでスキップ
-  if (!window.CdvPurchase) {
-    console.log('⚠️ CdvPurchase not available (browser mode)');
-    return;
-  }
-
-  const { store, ProductType, Platform } = CdvPurchase;
-
-  // 商品を登録（App Store Connectで設定済みの製品ID）
-  store.register([{
-    id: PRODUCT_ID,
-    type: ProductType.PAID_SUBSCRIPTION,
-    platform: Platform.APPLE_APPSTORE
-  }]);
-
-  // イベントハンドラ登録
-  store.when()
-    // 商品情報がストアから取得できた時（価格・タイトル等）
-    .productUpdated((product) => {
-      console.log('📦 Product updated:', product.id, product.pricing && product.pricing.price);
-      updateSubscriptionUI(product);
-    })
-    // 購入が承認された（Appleから決済OK）
-    .approved((transaction) => {
-      console.log('✅ Purchase approved:', transaction.transactionId);
-      transaction.verify();
-    })
-    // レシート検証が完了
-    .verified((receipt) => {
-      console.log('✅ Purchase verified');
-      receipt.finish();
-      unlockPremium();
-    })
-    // トランザクション完了
-    .finished((transaction) => {
-      console.log('✅ Transaction finished:', transaction.transactionId);
-    })
-    // レシートが更新された（復元時など）
-    .receiptUpdated(() => {
-      checkSubscriptionStatus();
-    });
-
-  // ストア初期化（Apple App Storeのみ）
-  store.initialize([Platform.APPLE_APPSTORE])
-    .then(() => {
-      console.log('✅ Store initialized');
-    })
-    .catch((err) => {
-      console.error('❌ Store init error:', err);
-    });
-}
-
-// ----------------------------------------
-// 価格表示の動的更新
-// StoreKitから取得した実際の価格でUIを上書き
-// ----------------------------------------
-function updateSubscriptionUI(product) {
-  const priceEl = document.getElementById('subscription-price');
-  if (priceEl && product.pricing && product.pricing.price) {
-    priceEl.textContent = product.pricing.price;
-  }
-}
-
-// ----------------------------------------
-// 購入処理（HTMLの「プレミアムになる」ボタンから呼ばれる）
-// ----------------------------------------
-function handleSubscribe() {
-  if (!window.CdvPurchase) {
-    alert('この環境ではサブスクリプションを購入できません。');
-    return;
-  }
-
-  const { store } = CdvPurchase;
-  const product = store.get(PRODUCT_ID);
-
-  if (!product) {
-    alert('商品情報を取得できませんでした。ネットワーク接続を確認してください。');
-    return;
-  }
-
-  const offer = product.getOffer();
-  if (!offer) {
-    alert('購入オプションが見つかりませんでした。');
-    return;
-  }
-
-  store.order(offer)
-    .then((error) => {
-      if (!error) return;
-      // ユーザーが自分でキャンセルした場合は通知不要
-      if (error.code === CdvPurchase.ErrorCode.PAYMENT_CANCELLED) {
-        console.log('User cancelled purchase');
+    if (typeof CdvPurchase === 'undefined') {
+        console.warn('[IAP] CdvPurchase plugin not available');
+        // プラグインが無い環境(ブラウザ等)では isPremium=false のまま
+        applyPremiumState(false);
         return;
-      }
-      console.error('❌ Purchase error:', error);
-      alert('購入処理中にエラーが発生しました。もう一度お試しください。');
+    }
+
+    const { store, ProductType, Platform } = CdvPurchase;
+
+    store.register([{
+        id: SUBSCRIPTION_PRODUCT_ID,
+        type: ProductType.PAID_SUBSCRIPTION,
+        platform: Platform.APPLE_APPSTORE
+    }]);
+
+    // 商品が承認されたら検証へ
+    store.when()
+        .approved(transaction => {
+            console.log('[IAP] Transaction approved:', transaction);
+            transaction.verify();
+        })
+        .verified(receipt => {
+            console.log('[IAP] Receipt verified:', receipt);
+            receipt.finish();
+            // verified の段階で再評価
+            evaluatePremiumFromStore();
+        })
+        .receiptUpdated(receipt => {
+            console.log('[IAP] Receipt updated');
+            evaluatePremiumFromStore();
+        })
+        .productUpdated(product => {
+            console.log('[IAP] Product updated:', product.id, 'owned:', product.owned);
+            evaluatePremiumFromStore();
+        });
+
+    store.error(err => {
+        console.error('[IAP] Store error:', err);
     });
+
+    // ストア初期化
+    store.initialize([Platform.APPLE_APPSTORE])
+        .then(() => {
+            console.log('[IAP] Store initialized');
+            // 起動時にキャッシュから即座に初期表示(UX向上)
+            // ただし StoreKit の検証で上書きされる前提
+            applyPremiumFromCache();
+            // StoreKit と同期
+            return store.update();
+        })
+        .then(() => {
+            console.log('[IAP] Store updated, evaluating premium state');
+            evaluatePremiumFromStore();
+        })
+        .catch(err => {
+            console.error('[IAP] Initialize failed:', err);
+        });
 }
 
-// ----------------------------------------
-// 購入復元（HTMLの「購入を復元」ボタンから呼ばれる）
-// ----------------------------------------
-function restorePurchase() {
-  if (!window.CdvPurchase) {
-    alert('この環境では購入の復元はできません。');
-    return;
-  }
+/**
+ * StoreKit の状態から isPremium を評価する(source of truth)
+ * これが呼ばれると localStorage キャッシュも更新される
+ */
+function evaluatePremiumFromStore() {
+    if (typeof CdvPurchase === 'undefined') return;
 
-  const { store } = CdvPurchase;
+    const product = CdvPurchase.store.get(SUBSCRIPTION_PRODUCT_ID);
+    const owned = product && product.owned === true;
 
-  store.restorePurchases()
-    .then(() => {
-      // 復元処理はAppleとの通信に時間がかかるため、少し待ってからチェック
-      setTimeout(() => {
-        checkSubscriptionStatus();
-        if (typeof isPremium !== 'undefined' && isPremium) {
-          alert('購入が復元されました！');
-        } else {
-          alert('復元できるサブスクリプションが見つかりませんでした。');
+    console.log('[IAP] evaluatePremiumFromStore: owned =', owned);
+
+    if (owned) {
+        applyPremiumState(true);
+    } else {
+        // StoreKit が「未所有」と言っている = サブスク失効 or 未購入
+        applyPremiumState(false);
+    }
+}
+
+/**
+ * キャッシュから即時的に状態を適用(初回起動時の UX 向上用)
+ * StoreKit 検証で必ず上書きされる前提のため、信頼度は低い
+ */
+function applyPremiumFromCache() {
+    try {
+        const cached = localStorage.getItem(PREMIUM_KEY) === 'true';
+        console.log('[IAP] applyPremiumFromCache: cached =', cached);
+        // キャッシュは表示の即時性のためだけに使う(true の時だけ反映)
+        if (cached) {
+            window.isPremium = true;
+            if (typeof updateBookshelfUI === 'function') {
+                updateBookshelfUI();
+            }
         }
-      }, 2000);
-    })
-    .catch((err) => {
-      console.error('❌ Restore error:', err);
-      alert('復元処理中にエラーが発生しました。');
-    });
-}
-
-// ----------------------------------------
-// サブスクリプション状態の確認
-// ----------------------------------------
-function checkSubscriptionStatus() {
-  if (!window.CdvPurchase) {
-    return;
-  }
-
-  const { store } = CdvPurchase;
-  const product = store.get(PRODUCT_ID);
-
-  if (product && product.owned) {
-    unlockPremium();
-  }
-}
-
-// ----------------------------------------
-// プレミアム機能アンロック
-// 既存の freemium.js の isPremium / updateBookshelfUI を利用
-// ----------------------------------------
-function unlockPremium() {
-  // freemium.js のグローバル変数を更新
-  if (typeof window.isPremium !== 'undefined' || typeof isPremium !== 'undefined') {
-    isPremium = true;
-  }
-  localStorage.setItem('isPremium', 'true');
-
-  // 本棚UIを更新（freemium.jsに定義されている関数）
-  if (typeof updateBookshelfUI === 'function') {
-    updateBookshelfUI();
-  }
-
-  // サブスク画面が開いていれば閉じる
-  if (typeof closeSubscribeScreen === 'function') {
-    closeSubscribeScreen();
-  }
-
-  console.log('🎉 Premium unlocked!');
-}
-
-// ----------------------------------------
-// 起動時の状態復元（前回購入済みなら自動的にプレミアム化）
-// ----------------------------------------
-function restorePremiumFromStorage() {
-  if (localStorage.getItem('isPremium') === 'true') {
-    if (typeof isPremium !== 'undefined') {
-      isPremium = true;
+    } catch (e) {
+        console.warn('[IAP] applyPremiumFromCache failed:', e);
     }
+}
+
+/**
+ * isPremium 状態を確定的に適用する
+ * - グローバル window.isPremium を更新
+ * - localStorage キャッシュを更新
+ * - 本棚UIを再描画
+ */
+function applyPremiumState(isPremiumNow) {
+    console.log('[IAP] applyPremiumState:', isPremiumNow);
+
+    window.isPremium = isPremiumNow;
+
+    try {
+        if (isPremiumNow) {
+            localStorage.setItem(PREMIUM_KEY, 'true');
+        } else {
+            localStorage.removeItem(PREMIUM_KEY);
+        }
+    } catch (e) {
+        console.warn('[IAP] localStorage write failed:', e);
+    }
+
     if (typeof updateBookshelfUI === 'function') {
-      updateBookshelfUI();
+        updateBookshelfUI();
     }
-    console.log('🔓 Premium state restored from storage');
-  }
 }
 
-// ----------------------------------------
-// 初期化トリガ
-// ----------------------------------------
-// Capacitor / Cordova のネイティブ環境では deviceready で初期化
-document.addEventListener('deviceready', () => {
-  console.log('📱 deviceready - initializing IAP');
-  restorePremiumFromStorage();
-  initializeStore();
-}, false);
+/**
+ * サブスク購入処理(購入ボタンから呼ばれる)
+ */
+function purchaseSubscription() {
+    if (typeof CdvPurchase === 'undefined') {
+        alert('購入機能が利用できません。');
+        return;
+    }
 
-// ブラウザ環境（テスト用）では DOMContentLoaded で簡易初期化のみ
-if (!window.Capacitor || !window.Capacitor.isNativePlatform || !window.Capacitor.isNativePlatform()) {
-  document.addEventListener('DOMContentLoaded', () => {
-    console.log('📱 Running in browser mode - IAP disabled');
-    restorePremiumFromStorage();
-  });
+    const product = CdvPurchase.store.get(SUBSCRIPTION_PRODUCT_ID);
+    if (!product) {
+        alert('商品情報が取得できませんでした。');
+        return;
+    }
+
+    const offer = product.getOffer();
+    if (!offer) {
+        alert('購入オファーが取得できませんでした。');
+        return;
+    }
+
+    offer.order()
+        .then(() => {
+            console.log('[IAP] Order placed');
+        })
+        .catch(err => {
+            console.error('[IAP] Order failed:', err);
+            alert('購入に失敗しました: ' + (err.message || err));
+        });
 }
+
+/**
+ * 購入復元処理(復元ボタンから呼ばれる)
+ */
+function restorePurchases() {
+    if (typeof CdvPurchase === 'undefined') {
+        alert('復元機能が利用できません。');
+        return;
+    }
+
+    CdvPurchase.store.restorePurchases()
+        .then(() => {
+            console.log('[IAP] Restore completed');
+            // restorePurchases の結果は productUpdated / receiptUpdated 経由で反映
+        })
+        .catch(err => {
+            console.error('[IAP] Restore failed:', err);
+            alert('復元に失敗しました: ' + (err.message || err));
+        });
+}
+
+// グローバル公開(index.html の onclick 等から呼ばれるため)
+window.purchaseSubscription = purchaseSubscription;
+window.restorePurchases = restorePurchases;
+window.evaluatePremiumFromStore = evaluatePremiumFromStore;

@@ -933,6 +933,7 @@
             <!-- まよいみちのコンパス -->
             <div class="book-item" data-book-id="mayoimichi_compass" onclick="selectBook('mayoimichi_compass')">
               <div class="book-cover cover-compass">
+                <span class="lock-icon">🔒</span>
                 <img src="pirika_official/cover.png" alt="まよいみちのコンパス" class="cover-image">
               </div>
               <p class="book-title" id="book-label-compass">まよいみちのコンパス</p>
@@ -2872,7 +2873,7 @@
         <span class="price-period">/ 月</span>
       </div>
 
-      <button class="subscribe-btn" onclick="handleSubscribe()">
+      <button class="subscribe-btn" onclick="purchaseSubscription()">
         プレミアムに なる
       </button>
 
@@ -2892,7 +2893,7 @@
         <a href="https://yomitomo.com/privacy-policy.html" target="_blank" rel="noopener noreferrer">プライバシーポリシー</a>
       </div>
 
-      <button class="restore-btn" onclick="restorePurchase()">
+      <button class="restore-btn" onclick="restorePurchases()">
         購入を復元
       </button>
 
